@@ -28,7 +28,6 @@ COPY --from=builder /app/tsconfig.json ./
 COPY --from=builder /app/app ./app
 COPY --from=builder /app/components ./components
 COPY --from=builder /app/lib ./lib
-COPY --from=builder /app/styles ./styles
 
 RUN chown -R nextjs:nodejs /app
 USER nextjs
