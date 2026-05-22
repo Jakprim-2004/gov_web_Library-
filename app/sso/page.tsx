@@ -16,12 +16,6 @@ export default function SsoShowcasePage() {
       {/* Page Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-2xl text-white text-2xl"
-            style={{ background: 'linear-gradient(135deg, #f8842d, #f1be25)' }}
-          >
-            🔐
-          </div>
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26]">
               SSO Login Package
@@ -196,7 +190,7 @@ export default function SsoShowcasePage() {
           {/* Raw SSO Payload */}
           <section className="mb-10 animate-fade-in-up delay-400">
             <SectionHeader
-              emoji="📦"
+              emoji=""
               title="Raw SSO Payload"
               subtitle="ข้อมูลดิบทั้งหมดที่ได้จาก IAM-GOV API (JSON)"
             />
@@ -238,9 +232,6 @@ export default function SsoShowcasePage() {
       {/* ── README Documentation ── */}
       <section className="mb-12 animate-fade-in-up delay-200">
         <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e7d55]/10 text-[#1e7d55]">
-            📘
-          </div>
           <div>
             <h2 className="text-lg font-bold text-[#060d26]">README: gov-sso-login</h2>
             <p className="text-xs text-[#707993]">แสดงเอกสาร README แบบเดียวกับหน้า SSO showcase</p>

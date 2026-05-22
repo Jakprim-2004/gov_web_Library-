@@ -1,18 +1,28 @@
+"use client";
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { CodeBlock } from '@/components/CodeBlock';
 import { ReadmeViewer } from '@/components/ReadmeViewer';
 
+const README_TABS = [
+  { id: 'combined', label: 'รวมทั้งหมด' },
+  { id: 'gov-layout', label: 'gov-layout' },
+  { id: 'gov-sso-login', label: 'gov-sso-login' },
+  { id: 'gov-token-css', label: 'gov-token-css' },
+] as const;
+
 const SECTIONS = [
   {
     id: 'install',
-    icon: '📦',
+    icon: '',
     title: 'ติดตั้งทั้งสามแพ็กเกจ',
     step: '01',
     body: (
       <>
         <CodeBlock code="npm install gov-token-css gov-layout gov-sso-login" />
         <div className="mt-4 flex items-start gap-2 rounded-xl bg-[#6982e1]/5 border border-[#6982e1]/10 px-4 py-3">
-          <span className="text-sm shrink-0">💡</span>
+          <span className="text-sm shrink-0"></span>
           <p className="text-xs text-[#475272] leading-relaxed">
             ใน monorepo นี้ใช้{' '}
             <code className="rounded-md bg-white px-1.5 py-0.5 text-[11px] font-medium text-[#1e7d55]">
@@ -26,7 +36,7 @@ const SECTIONS = [
   },
   {
     id: 'css',
-    icon: '🎨',
+    icon: '',
     title: 'gov-token-css — สีและ class',
     step: '02',
     body: (
@@ -208,6 +218,8 @@ transpilePackages: ['gov-sso-login', 'gov-layout']`}
 ];
 
 export default function GuidePage() {
+  const [readmeDoc, setReadmeDoc] = useState<(typeof README_TABS)[number]['id']>('combined');
+
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
       {/* ──── Page Header ──── */}
@@ -275,15 +287,30 @@ export default function GuidePage() {
               06
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-lg">📘</span>
               <h2 className="text-lg font-bold tracking-tight text-[#060d26]">README แบบเต็ม</h2>
             </div>
           </div>
           <div className="p-6 md:p-8">
             <p className="text-sm text-[#707993] mb-4">
-              ด้านล่างคือเอกสาร README แบบแสดงผลตรงหน้า เหมือนหน้า SSO showcase
+              ด้านล่างคือเอกสาร README แบบเลือกดูได้ตามแพ็กเกจ
             </p>
-            <ReadmeViewer doc="gov-sso-login" />
+            <div className="mb-5 flex flex-wrap gap-2">
+              {README_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setReadmeDoc(tab.id)}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors border ${
+                    readmeDoc === tab.id
+                      ? 'bg-[#1e7d55] text-white border-[#1e7d55]'
+                      : 'bg-white text-[#475272] border-[#060d26]/10 hover:bg-[#f8faf9]'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <ReadmeViewer doc={readmeDoc} />
           </div>
         </section>
       </div>

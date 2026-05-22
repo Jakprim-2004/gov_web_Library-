@@ -7,7 +7,7 @@ const CARDS = [
     title: 'Design Tokens',
     subtitle: 'gov-token-css',
     desc: 'สี, Typography, Spacing, Shadow — ดู swatch และ class ที่ใช้ได้ทั้งหมด',
-    icon: '🎨',
+    icon: '',
     gradient: 'linear-gradient(135deg, #1e7d55, #2aa876)',
     badge: 'Foundation',
     badgeClass: 'badge-brand',
@@ -54,7 +54,7 @@ const CARDS = [
 ];
 
 const STATS = [
-  { value: '3', label: 'Packages', icon: '📦' },
+  { value: '3', label: 'Packages', icon: '' },
   { value: '33+', label: 'Icons', icon: '' },
   { value: '50+', label: 'Tokens', icon: '🎯' },
   { value: 'v4', label: 'Tailwind', icon: '🌊' },

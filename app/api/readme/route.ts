@@ -4,9 +4,10 @@ import { join } from 'path';
 
 const README_MAP: Record<string, string> = {
   root: join(process.cwd(), 'README.md'),
-  'gov-token-css': join(process.cwd(), '..', 'gov-token-css', 'README.md'),
-  'gov-layout': join(process.cwd(), '..', 'gov-layout', 'README.md'),
-  'gov-sso-login': join(process.cwd(), '..', 'gov-sso-login', 'README.md'),
+  combined: join(process.cwd(), 'README_combined.md'),
+  'gov-token-css': join(process.cwd(), 'README_gov-token-css.md'),
+  'gov-layout': join(process.cwd(), 'README_gov-layout.md'),
+  'gov-sso-login': join(process.cwd(), 'README_gov-sso-login.md'),
 };
 
 export async function GET(request: Request) {
