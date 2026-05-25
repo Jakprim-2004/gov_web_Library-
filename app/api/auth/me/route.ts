@@ -7,13 +7,13 @@ export async function GET() {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
 
   if (!token) {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false });
   }
 
   try {
     const session = decodeSession(token, getSessionSecret());
     if (!session) {
-      return NextResponse.json({ authenticated: false }, { status: 401 });
+      return NextResponse.json({ authenticated: false });
     }
     return NextResponse.json({
       authenticated: true,
@@ -21,6 +21,6 @@ export async function GET() {
       ssoPayload: session.ssoPayload,
     });
   } catch {
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false });
   }
 }

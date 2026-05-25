@@ -220,7 +220,6 @@ export default function SsoShowcasePage() {
       ) : (
         <section className="mb-12 animate-fade-in-up delay-100">
           <div className="rounded-2xl border border-dashed border-[#060d26]/20 p-8 text-center bg-[#f8f9fa]">
-            <span className="text-3xl mb-3 block opacity-50">🔒</span>
             <h2 className="text-lg font-bold text-[#060d26] mb-2">ยังไม่ได้เข้าสู่ระบบ</h2>
             <p className="text-sm text-[#707993] max-w-md mx-auto">
               คุณยังไม่ได้ล็อกอิน หากเข้าสู่ระบบแล้วข้อมูลโปรไฟล์ที่ได้จาก SSO จะถูกนำมาแสดงผลที่นี่

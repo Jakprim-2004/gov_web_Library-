@@ -21,6 +21,20 @@ export function middleware(request: NextRequest) {
   );
   const hasSession = !!request.cookies.get(SESSION_COOKIE)?.value;
 
+  // /auth/callback ต้องมี ?code= จาก IAM — ถ้าไม่มี อย่าให้ client ขึ้น sso_failed
+  if (pathname === '/auth/callback') {
+    const code = request.nextUrl.searchParams.get('code');
+    if (!code) {
+      if (hasSession) {
+        return NextResponse.redirect(new URL('/layout/staff', request.url));
+      }
+      const login = new URL('/login', request.url);
+      const from = request.nextUrl.searchParams.get('from');
+      if (from) login.searchParams.set('from', from);
+      return NextResponse.redirect(login);
+    }
+  }
+
   if (!hasSession && !isPublic) {
     const login = new URL('/login', request.url);
     login.searchParams.set('from', pathname);

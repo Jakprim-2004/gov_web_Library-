@@ -5,7 +5,7 @@ export function ColorSwatchGrid({ group }: { group: TokenGroup }) {
     <section id={group.id} className="scroll-mt-24 animate-fade-in-up">
       <div className="section-header">
         <div
-          className=""
+          className="section-header-icon"
           style={{
             background:
               group.id === 'brand'

@@ -4,9 +4,6 @@
 @import "gov-token-css/theme";
 @import "gov-token-css/typography";
 
-/* ──────────────── Custom Font ──────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 /* ──────────────── CSS Variables ──────────────── */
 :root {
   --glass-bg: rgba(255, 255, 255, 0.72);
@@ -31,7 +28,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', 'Noto Sans Thai', system-ui, sans-serif;
+  font-family: 'Noto Sans Thai', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #f8faf9;
@@ -519,7 +516,7 @@ pre,
   margin-bottom: 24px;
 }
 
-. {
+.section-header-icon {
   display: flex;
   align-items: center;
   justify-content: center;

@@ -33,12 +33,12 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
   const refreshSession = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/me', { credentials: 'include' });
-      if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.authenticated) {
         setUser(null);
         setSsoPayload(null);
         return;
       }
-      const data = await res.json();
       setUser(data.user ?? null);
       setSsoPayload(data.ssoPayload ?? null);
     } catch {

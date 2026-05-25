@@ -57,13 +57,37 @@ export async function POST(request: Request) {
     if (iamResponse.ok) {
       iamData = await iamResponse.json();
     } else {
-      console.warn(`\n⚠️ IAM-GOV API responded with ${iamResponse.status}`);
       const errorText = await iamResponse.text();
+      console.warn(`\n⚠️ IAM-GOV API responded with ${iamResponse.status}`);
       console.warn(`[SSO Error Text]`, errorText);
+      if (iamResponse.status === 403 && errorText.includes('already been used')) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: 'รหัส SSO ถูกใช้แล้ว กรุณาเข้าสู่ระบบใหม่',
+          },
+          { status: 400 },
+        );
+      }
     }
   } catch (error) {
     console.error('\n🔴 [SSO Callback Error] Fetch failed, falling back to mock user:', error);
     isMock = true;
+  }
+
+  if (!iamData && process.env.NODE_ENV === 'development') {
+    console.warn('[SSO] IAM unavailable — using dev mock session');
+    isMock = true;
+    iamData = {
+      user: {
+        id: 'dev-mock-user',
+        name: 'Dev Mock User',
+        email: 'dev@localhost',
+        systemRole: 'USER',
+        memberships: [],
+      },
+      residences: [],
+    };
   }
 
   if (!iamData) {
@@ -119,11 +143,10 @@ export async function POST(request: Request) {
     success: true,
     user: session.user,
     ssoPayload: session.ssoPayload,
-    message: 'เข้าสู่ระบบสำเร็จ',
+    message: isMock ? 'เข้าสู่ระบบสำเร็จ (dev mock)' : 'เข้าสู่ระบบสำเร็จ',
   });
 
-  const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
+  res.cookies.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
