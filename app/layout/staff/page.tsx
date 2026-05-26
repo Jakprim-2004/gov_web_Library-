@@ -10,7 +10,6 @@ function StaffLayoutContent() {
   const searchParams = useSearchParams();
   const panel = searchParams.get('panel');
   const { user, ssoPayload, isLoggedIn, isLoading, logout } = useDemoAuth();
-  const [showVideo, setShowVideo] = useState(true);
 
   if (isLoading) {
     return (
@@ -250,20 +249,9 @@ function StaffLayoutContent() {
       )}
     </main>
 
-    {showVideo && (
-      <aside className="hidden xl:block fixed right-8 top-24 w-[420px] z-50">
+    <aside className="hidden xl:block fixed right-8 top-24 w-[420px] z-50">
       <div className="card-section p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-[#060d26]">วิดีโอแนะนำ</h2>
-          <button
-            type="button"
-            aria-label="ปิดวิดีโอ"
-            className="h-7 w-7 rounded-full border border-[#0b1220]/10 text-xs text-[#5b6b80] hover:text-[#0b1220] hover:border-[#0b1220]/30"
-            onClick={() => setShowVideo(false)}
-          >
-            ×
-          </button>
-        </div>
+        <h2 className="text-sm font-bold text-[#060d26] mb-3">วิดีโอแนะนำ</h2>
         <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
           <div className="aspect-video">
             <YouTubePlayer
@@ -275,8 +263,7 @@ function StaffLayoutContent() {
           </div>
         </div>
       </div>
-      </aside>
-    )}
+    </aside>
     </>
   );
 }
