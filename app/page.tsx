@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { GovLogo } from '@/components/GovLogo';
 import { YouTubePlayer } from '@/components/YouTubePlayer';
@@ -62,6 +65,8 @@ const STATS = [
 ];
 
 export default function HomePage() {
+  const [showVideo, setShowVideo] = useState(true);
+
   return (
     <div>
       {/* ──── Hero Section ──── */}
@@ -216,9 +221,20 @@ npm run dev
         </section>
       </main>
 
-      <aside className="hidden xl:block fixed right-8 top-28 w-[420px]">
-        <div className="card-section p-4">
-          <h2 className="text-sm font-bold text-[#060d26] mb-3">วิดีโอแนะนำ</h2>
+      {showVideo && (
+        <aside className="hidden xl:block fixed right-8 top-28 w-[420px] z-50">
+          <div className="card-section p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold text-[#060d26]">วิดีโอแนะนำ</h2>
+              <button
+                type="button"
+                aria-label="ปิดวิดีโอ"
+                className="h-7 w-7 rounded-full border border-[#0b1220]/10 text-xs text-[#5b6b80] hover:text-[#0b1220] hover:border-[#0b1220]/30"
+                onClick={() => setShowVideo(false)}
+              >
+                ×
+              </button>
+            </div>
           <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
             <div className="aspect-video">
               <YouTubePlayer
@@ -229,8 +245,9 @@ npm run dev
               />
             </div>
           </div>
-        </div>
-      </aside>
+          </div>
+        </aside>
+      )}
     </div>
   );
 }
