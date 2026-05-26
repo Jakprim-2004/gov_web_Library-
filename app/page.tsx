@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { GovLogo } from '@/components/GovLogo';
+import { YouTubePlayer } from '@/components/YouTubePlayer';
 
 const CARDS = [
   {
@@ -220,12 +221,11 @@ npm run dev
           <h2 className="text-sm font-bold text-[#060d26] mb-3">วิดีโอแนะนำ</h2>
           <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
             <div className="aspect-video">
-              <iframe
-                src="https://www.youtube.com/embed/mWrm3qeqrao?list=RDmWrm3qeqrao&controls=0&modestbranding=1&rel=0"
-                title="YouTube video"
+              <YouTubePlayer
+                videoId="mWrm3qeqrao"
+                playlistId="RDmWrm3qeqrao"
                 className="h-full w-full"
-                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
+                volume={40}
               />
             </div>
           </div>
