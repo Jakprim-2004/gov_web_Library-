@@ -254,10 +254,10 @@ function StaffLayoutContent() {
         <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
           <div className="aspect-video">
             <iframe
-              src="https://www.youtube.com/embed/Jd4Hd-HFgls?list=RDJd4Hd-HFgls"
+              src="https://www.youtube.com/embed/mWrm3qeqrao?list=RDmWrm3qeqrao&controls=0&modestbranding=1&rel=0"
               title="YouTube video"
               className="h-full w-full"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>

@@ -214,6 +214,23 @@ npm run dev
           </div>
         </section>
       </main>
+
+      <aside className="hidden xl:block fixed right-8 top-28 w-[420px]">
+        <div className="card-section p-4">
+          <h2 className="text-sm font-bold text-[#060d26] mb-3">วิดีโอแนะนำ</h2>
+          <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
+            <div className="aspect-video">
+              <iframe
+                src="https://www.youtube.com/embed/mWrm3qeqrao?list=RDmWrm3qeqrao&controls=0&modestbranding=1&rel=0"
+                title="YouTube video"
+                className="h-full w-full"
+                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      </aside>
     </div>
   );
 }
