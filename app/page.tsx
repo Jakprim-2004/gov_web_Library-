@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { GovLogo } from '@/components/GovLogo';
-import { YouTubePlayer } from '@/components/YouTubePlayer';
 
 const CARDS = [
   {
@@ -216,21 +215,6 @@ npm run dev
         </section>
       </main>
 
-      <aside className="hidden xl:block fixed right-8 top-28 w-[420px] z-50">
-        <div className="card-section p-4">
-          <h2 className="text-sm font-bold text-[#060d26] mb-3">วิดีโอแนะนำ</h2>
-          <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
-            <div className="aspect-video">
-              <YouTubePlayer
-                videoId="mWrm3qeqrao"
-                playlistId="RDmWrm3qeqrao"
-                className="h-full w-full"
-                volume={40}
-              />
-            </div>
-          </div>
-        </div>
-      </aside>
     </div>
   );
 }
