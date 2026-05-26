@@ -14,12 +14,12 @@ export default function SsoShowcasePage() {
   const residences: any[] = normalizedPayload?.residences || [];
 
   return (
-    <main className="mx-auto max-w-5xl p-6 md:p-10 animate-fade-in-up">
+    <main className="mx-auto max-w-5xl px-4 sm:px-6 py-6 md:p-10 animate-fade-in-up">
       {/* Page Header */}
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">
               SSO Login Package
             </h1>
             <p className="text-sm text-[#707993]">gov-sso-login • Authentication</p>
@@ -281,11 +281,11 @@ function DataField({
   const displayValue = value === null || value === undefined ? '(null)' : String(value);
 
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="text-[10px] font-semibold text-[#707993] uppercase tracking-wider mb-0.5">
         {label}
       </dt>
-      <dd className="text-sm">
+      <dd className="text-sm" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
         {badge ? (
           <span className="inline-block rounded-md bg-[#6982e1]/10 px-2.5 py-0.5 text-xs font-bold text-[#6982e1]">
             {displayValue}
@@ -342,7 +342,7 @@ function ExpandableJson({ data, tone }: { data: unknown; tone: 'light' | 'dark' 
     <div>
       <div
         className={`font-mono text-xs whitespace-pre-wrap leading-relaxed overflow-auto ${textClass}`}
-        style={{ maxHeight: expanded ? 520 : 220, overflow: expanded ? 'auto' : 'hidden' }}
+        style={{ maxHeight: expanded ? 520 : 220, overflow: expanded ? 'auto' : 'hidden', overflowWrap: 'break-word', wordBreak: 'break-word' }}
       >
         {JSON.stringify(data, null, 2)}
       </div>

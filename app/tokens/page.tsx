@@ -102,7 +102,7 @@ const ICONS = [
 
 export default function TokensPage() {
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10">
       {/* ──── Page Header ──── */}
       <header className="animate-fade-in-up mb-8">
         <div className="flex items-center gap-3 mb-3">
@@ -113,7 +113,7 @@ export default function TokensPage() {
             
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">
               Design Tokens
             </h1>
             <p className="text-sm text-[#707993]">gov-token-css</p>
@@ -180,13 +180,19 @@ export default function TokensPage() {
           {TYPO_CLASSES.map((t, i) => (
             <div
               key={t.className}
-              className={`flex items-baseline justify-between gap-4 py-4 ${i < TYPO_CLASSES.length - 1 ? 'border-b border-[#060d26]/5' : ''
+              className={`flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 sm:gap-4 py-4 ${i < TYPO_CLASSES.length - 1 ? 'border-b border-[#060d26]/5' : ''
                 } group hover:bg-[#f8faf9] px-4 -mx-4 rounded-xl transition-colors`}
             >
               <div className="min-w-0 flex-1">
-                <p className={`${t.className} text-[#060d26] truncate`}>
+                <p className={`${t.className} text-[#060d26]`} style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                   ตัวอย่าง {t.label} — สวัสดีครับ
                 </p>
+              </div>
+              <div className="flex sm:hidden flex-wrap items-center gap-2 mt-1">
+                <code className="rounded-md bg-[#f0f4f2] px-2 py-0.5 text-[11px] font-medium text-[#1e7d55]">
+                  {t.className}
+                </code>
+                <span className="text-[11px] text-[#707993]">{t.desc}</span>
               </div>
               <div className="hidden sm:flex items-center gap-3 shrink-0">
                 <code className="rounded-md bg-[#f0f4f2] px-2 py-0.5 text-[11px] font-medium text-[#1e7d55]">
@@ -247,7 +253,7 @@ export default function TokensPage() {
           {RADIUS_CLASSES.map((r) => (
             <div key={r.className} className="text-center group">
               <div
-                className={`${r.className} h-20 w-28 flex items-center justify-center text-white text-sm font-bold transition-all group-hover:scale-105 group-hover:shadow-lg`}
+                className={`${r.className} h-16 sm:h-20 w-20 sm:w-28 flex items-center justify-center text-white text-xs sm:text-sm font-bold transition-all group-hover:scale-105 group-hover:shadow-lg`}
                 style={{ background: 'var(--gradient-primary)' }}
               >
                 {r.value}

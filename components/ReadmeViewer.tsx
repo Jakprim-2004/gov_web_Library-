@@ -143,7 +143,7 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
   }
 
   return (
-    <div className="readme-content">
+    <div className="readme-content" style={{ overflowWrap: 'break-word', wordBreak: 'break-word', minWidth: 0 }}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components as any}>
         {content}
       </ReactMarkdown>

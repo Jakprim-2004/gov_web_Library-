@@ -82,10 +82,10 @@ const ICONS = [
 
 export default function IconsPage() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="mx-auto max-w-5xl px-4 sm:px-6 py-8 sm:py-10">
       <header className="mb-8">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#1e7d55]">Icon Preview</p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-[#060d26]">ชุด SVG Icons สำหรับ library</h1>
+        <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">ชุด SVG Icons สำหรับ library</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-[#707993]">
           หน้าแสดงตัวอย่างไอคอนแบบ SVG ที่ใช้กับเมนูหลักได้จริง และสอดคล้องกับสไตล์ของหน้าคู่มือ
         </p>

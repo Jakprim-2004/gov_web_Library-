@@ -832,6 +832,38 @@ html.dark .swatch-card {
 }
 
 /* ──────────────── Responsive ──────────────── */
+
+/* ── Global overflow safety ── */
+*,
+*::before,
+*::after {
+  min-width: 0;
+}
+
+.app-content {
+  overflow-x: hidden;
+}
+
+/* ── Tablet (≤1024px) ── */
+@media (max-width: 1024px) {
+  .hero-section {
+    min-height: 420px;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .hero-subtitle {
+    font-size: 15px;
+  }
+
+  .hero-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Mobile (≤768px) ── */
 @media (max-width: 768px) {
   .hero-section {
     min-height: 360px;
@@ -840,6 +872,138 @@ html.dark .swatch-card {
   .hero-blob {
     width: 250px;
     height: 250px;
+  }
+
+  .hero-title {
+    font-size: clamp(1.6rem, 6vw, 2.2rem);
+    line-height: 1.15;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+  }
+
+  .hero-kicker {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  .hero-metrics {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .hero-metric {
+    padding: 10px 12px;
+  }
+
+  .hero-metric p:first-child {
+    font-size: 17px;
+  }
+
+  .hero-metric p:last-child {
+    font-size: 10px;
+  }
+
+  /* Navigation */
+  .nav-premium {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Cards */
+  .card-premium {
+    padding: 16px !important;
+  }
+
+  .card-section {
+    border-radius: 14px;
+  }
+
+  /* Code Blocks */
+  .code-premium pre {
+    padding: 40px 14px 14px;
+    font-size: 11px;
+    word-break: break-all;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+  }
+
+  /* Tables */
+  .table-premium {
+    font-size: 12px;
+  }
+
+  .table-premium th,
+  .table-premium td {
+    padding: 10px 10px;
+  }
+
+  /* Section Headers */
+  .section-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-header h2 {
+    font-size: 17px;
+  }
+
+  .section-header p {
+    font-size: 12px;
+  }
+
+  /* Pill Nav */
+  .pill-nav {
+    padding: 6px 12px;
+    font-size: 11px;
+  }
+
+  /* Buttons */
+  .btn-primary,
+  .btn-ghost {
+    padding: 8px 16px;
+    font-size: 13px;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── Small mobile (≤480px) ── */
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 300px;
+  }
+
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .hero-metrics {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .code-premium pre {
+    font-size: 10px;
+    padding: 36px 10px 10px;
+  }
+
+  .table-premium th,
+  .table-premium td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+
+  .btn-primary,
+  .btn-ghost {
+    font-size: 12px;
+    padding: 8px 12px;
   }
 }
 

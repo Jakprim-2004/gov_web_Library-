@@ -69,23 +69,23 @@ export default function HomePage() {
         <div className="hero-blob hero-blob-2" />
         <div className="hero-grid" />
 
-        <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-28">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-16 md:py-28">
+          <div className="grid gap-8 lg:gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
             <div>
               <div className="hero-kicker animate-fade-in-up">Government Design System</div>
 
-              <h1 className="hero-title animate-fade-in-up delay-100 mt-5">
+              <h1 className="hero-title animate-fade-in-up delay-100 mt-4 sm:mt-5" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
                 GOV Components Library
                 <span>Design System</span>
               </h1>
 
-              <p className="hero-subtitle animate-fade-in-up delay-200 mt-6 max-w-xl">
+              <p className="hero-subtitle animate-fade-in-up delay-200 mt-4 sm:mt-6 max-w-xl">
                 เว็บตัวอย่างที่รวมทั้งสามแพ็กเกจ — <strong className="text-white/90">gov-token-css</strong>,{' '}
                 <strong className="text-white/90">gov-layout</strong>,{' '}
                 <strong className="text-white/90">gov-sso-login</strong> — ใช้เป็นจุดอ้างอิงตอน integrate กับ Next.js
               </p>
 
-              <div className="animate-fade-in-up delay-300 mt-8 flex flex-wrap gap-3">
+              <div className="animate-fade-in-up delay-300 mt-6 sm:mt-8 flex flex-wrap gap-3">
                 <Link href="/guide" className="btn-primary" style={{ fontSize: '15px', padding: '12px 28px' }}>
                   เริ่มต้นใช้งาน
                 </Link>
@@ -100,7 +100,7 @@ export default function HomePage() {
             </div>
 
             <div className="animate-fade-in-up delay-200">
-              <div className="glass-dark rounded-[28px] border border-white/10 p-6 md:p-8 shadow-2xl">
+              <div className="glass-dark rounded-[20px] sm:rounded-[28px] border border-white/10 p-4 sm:p-6 md:p-8 shadow-2xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.24em] text-white/50">Government UI</p>
@@ -136,7 +136,7 @@ export default function HomePage() {
       </section>
 
       {/* ──── Main Content ──── */}
-      <main className="mx-auto max-w-7xl px-6 py-12">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12">
         {/* Section Title */}
         <div className="animate-fade-in-up mb-8">
           <h2 className="text-2xl font-bold tracking-tight text-[#0b1220]">
@@ -193,7 +193,7 @@ export default function HomePage() {
               <div className="code-dots">
                 <span /><span /><span />
               </div>
-              <pre>{`cd demo
+              <pre style={{ overflowX: 'auto', wordBreak: 'break-all', whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>{`cd demo
 cp .env.example .env.local   # ใส่ E_SERVICE_API_KEY + SESSION_SECRET
 npm install
 npm run dev

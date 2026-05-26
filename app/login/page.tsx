@@ -58,7 +58,7 @@ function LoginContent() {
               <GovLogo size={128} className="mx-auto drop-shadow-md" />
             </div>
             <span className="badge badge-brand mb-2">Gov Center</span>
-            <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-[#060d26]">
+            <h1 className="mt-3 text-xl sm:text-2xl font-extrabold tracking-tight text-[#060d26]">
               GOV Components Library
             </h1>
             <p className="mt-2 text-sm text-[#707993] leading-relaxed">

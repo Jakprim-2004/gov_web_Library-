@@ -2,6 +2,10 @@
 
 > อ่านครั้งเดียว ทำตามลำดับ — ครอบคลุมตั้งแต่ติดตั้ง library จนถึง Residence API และ Claim Flow
 
+**เวอร์ชันปัจจุบัน: `1.4.0`**
+
+> **v1.4.0 — SSO-first Auto Login:** เพิ่ม `checkSsoServer: true` ใน `useAutoLogin` — เช็ค SSO session โดยตรงและแลก token โดยไม่ต้อง redirect
+
 ---
 
 ## ก่อนเริ่ม — สิ่งที่ต้องมี
@@ -67,8 +71,25 @@ export const ssoConfig: GovSsoConfig = {
   serviceCode: process.env.NEXT_PUBLIC_E_SERVICE_CODE || 'your-service-code',
   apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'}/auth/callback`,
+
+  // Optional (v1.4.0) — สำหรับ SSO-first flow
+  // ssoSessionCheckPath: '/auth/session',   // default
+  // ssoExchangePath: '/auth/sso-session',   // default
 };
 ```
+
+### GovSsoConfig — ทุก field
+
+| Field | Required | Default | คำอธิบาย |
+|---|---|---|---|
+| `iamAuthUrl` | ✅ | — | URL ของ IAM-GOV auth frontend |
+| `serviceCode` | ✅ | — | Service code ที่ลงทะเบียนกับ IAM-GOV |
+| `apiBaseUrl` | ✅ | — | URL ของ backend API |
+| `callbackUrl` | ✅ | — | URL ที่ IAM-GOV redirect กลับ (frontend) |
+| `checkSessionPath` | — | `/auth/me` | Backend endpoint ตรวจ session |
+| `ssoCallbackPath` | — | `/auth/sso-callback` | Backend endpoint รับ SSO code |
+| `ssoSessionCheckPath` | — | `/auth/session` | IAM-GOV endpoint เช็ค SSO session โดยตรง |
+| `ssoExchangePath` | — | `/auth/sso-session` | Backend endpoint แลก SSO token เป็น local session |
 
 ---
 
@@ -119,6 +140,87 @@ export default function LoginPage() {
 
 ---
 
+## Auto Login — ดึงค่าจาก SSO โดยตรง (v1.4.0)
+
+ใช้ `useAutoLogin` ในหน้า protected เพื่อให้ระบบตรวจสอบ session อัตโนมัติ
+
+### Flow เปรียบเทียบ
+
+| | Default | `checkSsoServer: true` |
+|---|---|---|
+| เช็ค backend session | ✅ | ✅ |
+| เช็ค SSO server โดยตรง | ❌ | ✅ |
+| แลก token โดยไม่ redirect | ❌ | ✅ (ถ้า SSO คืน token) |
+| ต้องการ CORS จาก IAM-GOV | ❌ | ✅ |
+| Fallback ถ้า CORS ไม่รองรับ | — | redirect ปกติ |
+
+### วิธีใช้ (SSO-first)
+
+```tsx
+// app/dashboard/page.tsx
+'use client';
+
+import { useAutoLogin } from 'gov-sso-login';
+import { useRouter } from 'next/navigation';
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { status, user } = useAutoLogin({
+    checkSsoServer: true,          // ← เช็ค SSO server โดยตรงก่อน
+    onAuthenticated: (user) => console.log('Welcome:', user.firstName),
+    onUnauthenticated: () => router.push('/login'), // ถ้า autoRedirect=false
+  });
+
+  if (status === 'checking')    return <p>กำลังตรวจสอบ...</p>;
+  if (status === 'redirecting') return <p>กำลังเปลี่ยนเส้นทาง...</p>;
+  if (status !== 'authenticated') return null;
+
+  return <div>สวัสดี {user?.firstName}</div>;
+}
+```
+
+### Flow รายละเอียด (checkSsoServer=true)
+
+```
+1. GET /auth/me (backend)
+   ├── ✅ มี session → authenticated ทันที
+   └── ❌ ไม่มี session
+        ↓
+2. GET ${iamAuthUrl}/auth/session?service=xxx (IAM-GOV, CORS)
+   ├── loggedIn=true + sessionToken
+   │     ↓
+   │   3. POST /auth/sso-session (backend) ← แลก token
+   │     ├── ✅ สำเร็จ → authenticated ไม่ต้อง redirect!
+   │     └── ❌ ล้มเหลว → redirectToLogin()
+   ├── loggedIn=true แต่ไม่มี token → redirectToLogin()
+   │   (SSO auto-redirect กลับพร้อม code ทันที)
+   └── loggedIn=false / CORS block → redirect หรือ unauthenticated
+```
+
+### วิธีใช้ (Default — redirect)
+
+```tsx
+const { status, user } = useAutoLogin({
+  // checkSsoServer: false (default)
+  onAuthenticated: (user) => router.push('/dashboard'),
+});
+```
+
+### วิธีใช้ (ไม่ auto-redirect — ให้ user กดปุ่มเอง)
+
+```tsx
+const { status, user, login } = useAutoLogin({
+  autoRedirect: false,
+  onAuthenticated: (user) => router.push('/dashboard'),
+});
+
+if (status === 'unauthenticated') {
+  return <button onClick={login}>เข้าสู่ระบบ</button>;
+}
+```
+
+---
+
 ## ขั้นตอนที่ 6 — หน้า Callback (Frontend)
 
 ```tsx
@@ -151,7 +253,14 @@ export default function CallbackPage() {
 
 ## ขั้นตอนที่ 7 — Backend: รับ SSO Callback
 
-Backend ต้องมี `POST /auth/sso-callback` ที่:
+Backend ต้องมี endpoint 2 ตัว:
+
+| Endpoint | ใช้งาน |
+|---|---|
+| `POST /auth/sso-callback` | รับ `code` จาก IAM-GOV callback (flow ปกติ) |
+| `POST /auth/sso-session` | รับ `sessionToken` จาก SSO-first flow (v1.4.0) |
+
+### `POST /auth/sso-callback` ที่:
 1. รับ `{ code }` จาก frontend
 2. ส่ง code ไป IAM-GOV เพื่อ verify
 3. Upsert user และ residence snapshot ลงฐานข้อมูล
@@ -196,6 +305,40 @@ async handleSsoCallback(code: string) {
   return this.upsertUser(data.user);
 }
 ```
+
+### `POST /auth/sso-session` (v1.4.0 — SSO-first flow)
+
+Endpoint นี้ใช้เมื่อ `checkSsoServer: true` และ IAM-GOV คืน `sessionToken` โดยตรง
+
+```typescript
+// auth.controller.ts
+@Post('sso-session')
+async ssoSession(
+  @Body() body: { sessionToken: string },
+  @Res({ passthrough: true }) res: Response,
+) {
+  const user = await this.authService.handleSsoSession(body.sessionToken);
+  return this.authService.login(user, res);
+}
+
+// auth.service.ts
+async handleSsoSession(sessionToken: string) {
+  const response = await fetch(`${process.env.IAM_API_URL}/e-services/sso/verify-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.E_SERVICE_API_KEY,
+    },
+    body: JSON.stringify({ sessionToken }),
+  });
+
+  if (!response.ok) throw new Error(`IAM verify-session failed: ${response.status}`);
+  const data = await response.json();
+  return this.upsertUser(data.user);
+}
+```
+
+> **หมายเหตุ:** endpoint `POST /e-services/sso/verify-session` บน IAM-GOV ต้องรองรับก่อน — ถ้ายังไม่มีให้ใช้ flow redirect ปกติก่อน
 
 ---
 
@@ -454,6 +597,8 @@ x-api-key: <e-service-api-key>
 
 ## SSO Flow ภาพรวม
 
+### Flow A — Standard (redirect)
+
 ```
 [Frontend]          [IAM-GOV]           [Backend]
     │                   │                   │
@@ -471,6 +616,27 @@ x-api-key: <e-service-api-key>
     │◀── 8. JWT session + user ─────────────│
     │                                        │
 ✅ Login สำเร็จ → redirect ตาม role
+```
+
+### Flow B — SSO-first (checkSsoServer=true, v1.4.0)
+
+```
+[Frontend]          [IAM-GOV]           [Backend]
+    │                   │                   │
+    │─── 1. GET /auth/me ───────────────────▶│  ← เช็ค backend session
+    │◀── 401 (ไม่มี session) ───────────────│
+    │                   │                   │
+    │─── 2. GET /auth/session?service=xxx ─▶│  ← เช็ค SSO session โดยตรง (CORS)
+    │◀── { loggedIn:true, sessionToken } ───│
+    │                   │                   │
+    │─── 3. POST /auth/sso-session ─────────────────────────────▶│
+    │       { sessionToken }                │                     │
+    │                                       │  ── 4. verify-session ──▶ IAM-GOV
+    │                                       │  ◀── user ───────────────
+    │                                       │  ── 5. upsert DB
+    │◀── JWT session + user ────────────────────────────────────│
+    │                   │                   │
+✅ Login สำเร็จ — ไม่มี redirect เลย!
 ```
 
 ---
@@ -585,6 +751,8 @@ try {
 | "การตรวจสอบความปลอดภัยล้มเหลว" | CSRF state ไม่ตรง | ลอง login ใหม่ (อาจใช้ link เก่า) |
 | `useGovSso: ต้องส่ง config` | ไม่มี Provider | Wrap ด้วย `<GovSsoProvider>` |
 | Cookie ไม่ถูก set | domain ไม่ตรง | ตรวจ `FRONTEND_URL` ใน backend `.env` |
+| `checkSsoServer: true` ไม่ทำงาน | IAM-GOV ยังไม่รองรับ CORS | Library จะ fallback เป็น redirect ปกติ |
+| `POST /auth/sso-session` 404 | ยังไม่ได้ implement | ต้องสร้าง endpoint ตามขั้นตอนที่ 7 |
 
 ---
 
@@ -597,6 +765,7 @@ try {
 - [ ] สร้างหน้า login พร้อม `SsoLoginButton` หรือ `useGovSso`
 - [ ] สร้างหน้า `/auth/callback` พร้อม `SsoCallbackHandler` หรือ `useGovSsoCallback`
 - [ ] Implement `POST /auth/sso-callback` บน NestJS backend
+- [ ] (ถ้าต้องการ SSO-first) Implement `POST /auth/sso-session` บน NestJS backend
 - [ ] Implement `upsertIamUser`, `upsertResidenceSnapshot`, `upsertUserResidenceLink`
 - [ ] สร้าง DB tables: `iam_users`, `iam_residence_snapshots`, `iam_user_residences`
 - [ ] (ถ้าต้องการ) ทำ proxy endpoints สำหรับ Residence Search/Read

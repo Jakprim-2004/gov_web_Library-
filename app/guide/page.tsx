@@ -221,12 +221,12 @@ export default function GuidePage() {
   const [readmeDoc, setReadmeDoc] = useState<(typeof README_TABS)[number]['id']>('combined');
 
   return (
-    <main className="mx-auto max-w-4xl px-6 py-10">
+    <main className="mx-auto max-w-4xl px-4 sm:px-6 py-8 sm:py-10">
       {/* ──── Page Header ──── */}
       <header className="animate-fade-in-up mb-8">
         <div className="flex items-center gap-3 mb-3">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">
               คู่มือใช้งาน
             </h1>
             <p className="text-sm text-[#707993]">GOV Components Library Integration Guide</p>
@@ -260,7 +260,7 @@ export default function GuidePage() {
             className={`scroll-mt-24 card-section overflow-hidden animate-fade-in-up delay-${(i + 1) * 100}`}
           >
             {/* Section Header */}
-            <div className="flex items-center gap-4 border-b border-[#060d26]/5 px-6 py-4 md:px-8">
+            <div className="flex items-center gap-3 sm:gap-4 border-b border-[#060d26]/5 px-4 sm:px-6 py-3 sm:py-4 md:px-8">
               <div
                 className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-extrabold text-white shrink-0"
                 style={{ background: 'var(--gradient-primary)' }}
@@ -269,17 +269,17 @@ export default function GuidePage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-lg">{s.icon}</span>
-                <h2 className="text-lg font-bold tracking-tight text-[#060d26]">{s.title}</h2>
+                <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#060d26]">{s.title}</h2>
               </div>
             </div>
 
             {/* Section Body */}
-            <div className="p-6 md:p-8">{s.body}</div>
+            <div className="p-4 sm:p-6 md:p-8">{s.body}</div>
           </section>
         ))}
 
         <section className="card-section overflow-hidden animate-fade-in-up delay-600">
-          <div className="flex items-center gap-4 border-b border-[#060d26]/5 px-6 py-4 md:px-8">
+          <div className="flex items-center gap-3 sm:gap-4 border-b border-[#060d26]/5 px-4 sm:px-6 py-3 sm:py-4 md:px-8">
             <div
               className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-extrabold text-white shrink-0"
               style={{ background: 'var(--gradient-primary)' }}
@@ -290,7 +290,7 @@ export default function GuidePage() {
               <h2 className="text-lg font-bold tracking-tight text-[#060d26]">README แบบเต็ม</h2>
             </div>
           </div>
-          <div className="p-6 md:p-8">
+          <div className="p-4 sm:p-6 md:p-8">
             <p className="text-sm text-[#707993] mb-4">
               ด้านล่างคือเอกสาร README แบบเลือกดูได้ตามแพ็กเกจ
             </p>

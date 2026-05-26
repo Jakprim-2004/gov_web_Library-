@@ -32,7 +32,8 @@ function StaffLayoutContent() {
   const residences: any[] = normalizedPayload?.residences || [];
 
   return (
-    <main className="flex-1 p-6 md:p-10 max-w-5xl">
+    <>
+    <main className="flex-1 px-4 py-6 sm:p-6 md:p-10 max-w-5xl">
       {/* Page Header */}
       <div className="animate-fade-in-up mb-8">
         <div className="flex items-center gap-3 mb-3">
@@ -43,7 +44,7 @@ function StaffLayoutContent() {
             
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">
               ข้อมูลผู้ใช้งาน SSO
             </h1>
             <p className="text-sm text-[#707993]">ข้อมูลทั้งหมดจาก IAM-GOV API หลังเข้าสู่ระบบสำเร็จ</p>
@@ -56,7 +57,7 @@ function StaffLayoutContent() {
       {/* ── User Profile Card ── */}
       <section className="animate-fade-in-up delay-100 mb-8">
         <div className="rounded-2xl border border-[#060d26]/6 bg-white p-6 shadow-sm">
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
             {/* Avatar */}
             <div className="flex-shrink-0">
               {ssoUser.avatarUrl ? (
@@ -246,6 +247,24 @@ function StaffLayoutContent() {
         </section>
       )}
     </main>
+
+    <aside className="hidden xl:block fixed right-8 top-28 w-[420px]">
+      <div className="card-section p-4">
+        <h2 className="text-sm font-bold text-[#060d26] mb-3">วิดีโอแนะนำ</h2>
+        <div className="overflow-hidden rounded-2xl border border-[#060d26]/10 bg-black">
+          <div className="aspect-video">
+            <iframe
+              src="https://www.youtube.com/embed/Jd4Hd-HFgls?list=RDJd4Hd-HFgls"
+              title="YouTube video"
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </div>
+      </div>
+    </aside>
+    </>
   );
 }
 
@@ -278,11 +297,11 @@ function DataField({
   const displayValue = value === null || value === undefined ? '(null)' : String(value);
 
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="text-[10px] font-semibold text-[#707993] uppercase tracking-wider mb-0.5">
         {label}
       </dt>
-      <dd className="text-sm">
+      <dd className="text-sm" style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}>
         {badge ? (
           <span className="inline-block rounded-md bg-[#6982e1]/10 px-2.5 py-0.5 text-xs font-bold text-[#6982e1]">
             {displayValue}
@@ -321,7 +340,7 @@ function ExpandableJson({ data, tone }: { data: unknown; tone: 'light' | 'dark' 
     <div>
       <div
         className={`font-mono text-xs whitespace-pre-wrap leading-relaxed ${textClass}`}
-        style={{ maxHeight: expanded ? 520 : 220, overflow: expanded ? 'auto' : 'hidden' }}
+        style={{ maxHeight: expanded ? 520 : 220, overflow: expanded ? 'auto' : 'hidden', overflowWrap: 'break-word', wordBreak: 'break-word' }}
       >
         {JSON.stringify(data, null, 2)}
       </div>

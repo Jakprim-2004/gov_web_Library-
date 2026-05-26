@@ -58,7 +58,7 @@ function UserLayoutContent() {
         onLogout={() => void logout()}
       />
 
-      <main className="p-6 md:p-10 mx-auto max-w-5xl">
+      <main className="px-4 py-6 sm:p-6 md:p-10 mx-auto max-w-5xl">
         {/* Page Header */}
         <div className="animate-fade-in-up mb-8">
           <div className="flex items-center gap-3 mb-3">
@@ -69,7 +69,7 @@ function UserLayoutContent() {
               
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26]">
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">
                 UserHeader + UserSidebar
               </h1>
               <p className="text-sm text-[#707993]">gov-layout • ผู้ใช้</p>
