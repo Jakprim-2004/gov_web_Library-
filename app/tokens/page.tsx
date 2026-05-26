@@ -1,6 +1,45 @@
 import { ColorSwatchGrid } from '@/components/ColorSwatchGrid';
 import { CodeBlock } from '@/components/CodeBlock';
 import {
+  IconAlertTriangle,
+  IconBarChart,
+  IconBell,
+  IconBuilding,
+  IconCalendar,
+  IconCheckCircle,
+  IconClipboard,
+  IconDatabase,
+  IconDownload,
+  IconEdit,
+  IconEye,
+  IconFileText,
+  IconFolder,
+  IconGear,
+  IconGuide,
+  IconHeart,
+  IconHistory,
+  IconHome,
+  IconLayout,
+  IconLogOut,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconPlusCircle,
+  IconPrinter,
+  IconSearch,
+  IconShield,
+  IconSSO,
+  IconStar,
+  IconTrash,
+  IconTokens,
+  IconUpload,
+  IconUser,
+  IconUsers,
+  IconWrench,
+  IconHelpCircle,
+  IconXCircle,
+} from '@/components/GovIcons';
+import {
   RADIUS_CLASSES,
   SHADOW_CLASSES,
   SPACING_CLASSES,
@@ -18,6 +57,47 @@ const QUICK_LINKS = [
   { id: 'spacing', label: ' Spacing', icon: '' },
   { id: 'radius', label: ' Radius', icon: '' },
   { id: 'shadows', label: ' Shadows', icon: '' },
+  { id: 'icons', label: ' Icons', icon: '' },
+];
+
+const ICONS = [
+  { name: 'Home', label: 'หน้าแรก', Icon: IconHome },
+  { name: 'Search', label: 'ค้นหา', Icon: IconSearch },
+  { name: 'Bell', label: 'แจ้งเตือน', Icon: IconBell },
+  { name: 'Folder', label: 'หมวดหมู่', Icon: IconFolder },
+  { name: 'Clipboard', label: 'คำร้อง / แบบฟอร์ม', Icon: IconClipboard },
+  { name: 'FileText', label: 'เอกสาร / รายงาน', Icon: IconFileText },
+  { name: 'Calendar', label: 'นัดหมาย', Icon: IconCalendar },
+  { name: 'User', label: 'ผู้ใช้', Icon: IconUser },
+  { name: 'Users', label: 'สมาชิก', Icon: IconUsers },
+  { name: 'Gear', label: 'ตั้งค่า', Icon: IconGear },
+  { name: 'Wrench', label: 'ซ่อมบำรุง', Icon: IconWrench },
+  { name: 'Shield', label: 'สิทธิ์', Icon: IconShield },
+  { name: 'HelpCircle', label: 'ช่วยเหลือ', Icon: IconHelpCircle },
+  { name: 'BarChart', label: 'สถิติ', Icon: IconBarChart },
+  { name: 'History', label: 'ประวัติ', Icon: IconHistory },
+  { name: 'Database', label: 'สำรองข้อมูล', Icon: IconDatabase },
+  { name: 'Building', label: 'องค์กร', Icon: IconBuilding },
+  { name: 'MapPin', label: 'สถานที่', Icon: IconMapPin },
+  { name: 'Phone', label: 'โทรศัพท์', Icon: IconPhone },
+  { name: 'Mail', label: 'อีเมล', Icon: IconMail },
+  { name: 'CheckCircle', label: 'สำเร็จ', Icon: IconCheckCircle },
+  { name: 'AlertTriangle', label: 'คำเตือน', Icon: IconAlertTriangle },
+  { name: 'XCircle', label: 'ผิดพลาด', Icon: IconXCircle },
+  { name: 'PlusCircle', label: 'เพิ่ม', Icon: IconPlusCircle },
+  { name: 'LogOut', label: 'ออกจากระบบ', Icon: IconLogOut },
+  { name: 'Download', label: 'ดาวน์โหลด', Icon: IconDownload },
+  { name: 'Upload', label: 'อัปโหลด', Icon: IconUpload },
+  { name: 'Printer', label: 'พิมพ์', Icon: IconPrinter },
+  { name: 'Star', label: 'รายการโปรด', Icon: IconStar },
+  { name: 'Heart', label: 'ถูกใจ', Icon: IconHeart },
+  { name: 'Eye', label: 'ดูรายละเอียด', Icon: IconEye },
+  { name: 'Edit', label: 'แก้ไข', Icon: IconEdit },
+  { name: 'Trash', label: 'ลบ', Icon: IconTrash },
+  { name: 'Tokens', label: 'Design Tokens', Icon: IconTokens },
+  { name: 'Layout', label: 'Layout', Icon: IconLayout },
+  { name: 'SSO', label: 'SSO', Icon: IconSSO },
+  { name: 'Guide', label: 'คู่มือ', Icon: IconGuide },
 ];
 
 export default function TokensPage() {
@@ -202,24 +282,75 @@ export default function TokensPage() {
         </div>
       </section>
 
+      {/* ──── Icons ──── */}
+      <section id="icons" className="scroll-mt-24 card-section p-6 md:p-8 mb-10 animate-fade-in-up">
+        <div className="section-header">
+          <div>
+            <h2>Icon Set</h2>
+            <p>ไอคอน SVG พร้อมใช้กับเมนูและสถานะ</p>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ICONS.map(({ name, label, Icon }) => (
+            <div
+              key={name}
+              className="rounded-2xl border border-[#0b1220]/8 bg-white p-4 transition-transform hover:-translate-y-0.5"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f6f5c]/10 text-[#1f6f5c]">
+                  <Icon size={26} />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-[#0b1220]">{label}</p>
+                  <code className="text-[11px] text-[#5b6b80]">{name}</code>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ──── Dark Mode Note ──── */}
       <section className="card-section mb-10 overflow-hidden animate-fade-in-up">
-        <div className="p-6 md:p-8 relative" style={{ background: 'linear-gradient(135deg, rgba(241, 190, 37, 0.06) 0%, rgba(248, 132, 45, 0.06) 100%)' }}>
+        <div
+          className="p-6 md:p-8 relative"
+          style={{ background: 'linear-gradient(135deg, rgba(241, 190, 37, 0.06) 0%, rgba(248, 132, 45, 0.06) 100%)' }}
+        >
           <div className="flex items-start gap-3">
-            
             <div>
-              <h2 className="text-lg font-bold tracking-tight text-[#060d26]">Dark Mode</h2>
-              <p className="text-sm text-[#707993] mt-1 leading-relaxed">
+              <h2 className="text-lg font-bold tracking-tight text-[#0b1220]">Dark Mode</h2>
+              <p className="text-sm text-[#5b6b80] mt-1 leading-relaxed">
                 ใส่ class{' '}
-                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1e7d55]">dark</code>{' '}
+                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">dark</code>{' '}
                 บน{' '}
-                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1e7d55]">html</code>{' '}
-                — token เช่น{' '}
-                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1e7d55]">text-text-primary</code>{' '}
-                จะสลับโทนอัตโนมัติ หรือใช้{' '}
-                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1e7d55]">SettingsProvider</code>{' '}
-                จาก gov-layout
+                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">html</code>{' '}
+                เพื่อให้ token สลับโทนอัตโนมัติ (เช่น{' '}
+                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">text-text-primary</code>{' '}
+                และ{' '}
+                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">text-text-tertiary</code>{' '}
+                ) และสามารถใช้{' '}
+                <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">SettingsProvider</code>{' '}
+                จาก gov-layout เพื่อสลับธีมได้
               </p>
+
+              <ul className="mt-4 space-y-1.5 text-sm text-[#5b6b80]">
+                <li>Theme: เพิ่ม/ลบ class <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">dark</code> บน <code className="rounded-md bg-white/80 px-1.5 py-0.5 text-xs font-medium text-[#1f6f5c]">html</code></li>
+                <li>Token Text: ค่า primary/tertiary จะสลับเป็นโทนอ่อนอัตโนมัติ</li>
+                <li>Layout: ใช้ CSS ด้านล่างเพื่อปรับสีพื้นหลังของ body/aside/header</li>
+              </ul>
+
+              <div className="mt-5">
+                <CodeBlock
+                  code={`/* globals.css — เพิ่มสำหรับ dark mode */
+html.dark body          { background-color: #0f172a; color: #f1f5f9; }
+html.dark aside         { background-color: #1e293b !important; }
+html.dark header        { background-color: #1e293b !important; }
+html.dark h1,
+html.dark h2,
+html.dark h3            { color: #f1f5f9 !important; }
+html.dark p             { color: #94a3b8 !important; }`}
+                />
+              </div>
             </div>
           </div>
         </div>

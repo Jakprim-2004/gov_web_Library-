@@ -97,9 +97,13 @@ export async function POST(request: Request) {
     );
   }
 
+  const normalizedPayload =
+    (iamData as { data?: Record<string, unknown> }).data ??
+    (iamData as Record<string, unknown>);
+
   const user =
-    (iamData.user as SessionPayload['user'] | undefined) ||
-    (iamData.data as { user?: SessionPayload['user'] } | undefined)?.user;
+    (normalizedPayload as { user?: SessionPayload['user'] }).user ||
+    (iamData as { user?: SessionPayload['user'] }).user;
 
   if (!user?.id) {
     return NextResponse.json(
@@ -113,6 +117,17 @@ export async function POST(request: Request) {
   const fullName: string = rawUser.name || '';
   const [firstName, ...lastParts] = fullName.split(' ');
 
+  const slimPayload = {
+    message: (normalizedPayload as { message?: string }).message,
+    user: (normalizedPayload as { user?: Record<string, unknown> }).user,
+    membershipsCount: Array.isArray((rawUser as any)?.memberships)
+      ? (rawUser as any).memberships.length
+      : 0,
+    residencesCount: Array.isArray((normalizedPayload as any)?.residences)
+      ? (normalizedPayload as any).residences.length
+      : 0,
+  };
+
   const session: SessionPayload = {
     user: {
       id: String(user.id),
@@ -123,7 +138,7 @@ export async function POST(request: Request) {
       pictureUrl: rawUser.pictureUrl || rawUser.avatarUrl,
       email: rawUser.email,
     },
-    ssoPayload: iamData as Record<string, unknown>,
+    ssoPayload: slimPayload as Record<string, unknown>,
   };
 
   let token: string;
@@ -142,7 +157,7 @@ export async function POST(request: Request) {
   const res = NextResponse.json({
     success: true,
     user: session.user,
-    ssoPayload: session.ssoPayload,
+    ssoPayload: normalizedPayload,
     message: isMock ? 'เข้าสู่ระบบสำเร็จ (dev mock)' : 'เข้าสู่ระบบสำเร็จ',
   });
 

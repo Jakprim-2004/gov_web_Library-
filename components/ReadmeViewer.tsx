@@ -27,42 +27,57 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
 
   const components = useMemo(
     () => ({
-      h1: ({ children }: { children?: React.ReactNode }) => (
-        <h1 className="text-3xl font-extrabold tracking-tight text-[#060d26] mt-10 mb-4 first:mt-0">
-          {children}
-        </h1>
-      ),
-      h2: ({ children }: { children?: React.ReactNode }) => (
-        <h2 className="text-2xl font-bold text-[#060d26] mt-10 mb-4 pt-6 border-t border-[#060d26]/8">
-          {children}
-        </h2>
-      ),
-      h3: ({ children }: { children?: React.ReactNode }) => (
-        <h3 className="text-lg font-bold text-[#060d26] mt-8 mb-3">{children}</h3>
-      ),
-      h4: ({ children }: { children?: React.ReactNode }) => (
-        <h4 className="text-base font-bold text-[#060d26] mt-6 mb-2">{children}</h4>
-      ),
-      h5: ({ children }: { children?: React.ReactNode }) => (
-        <h5 className="text-sm font-bold text-[#475272] mt-4 mb-2">{children}</h5>
-      ),
+      h1: ({ children }: { children?: React.ReactNode }) => {
+        const id = slugify(String(children ?? ''));
+        return (
+          <h1 id={id} className="text-3xl font-extrabold tracking-tight text-[#0b1220] mt-10 mb-4 first:mt-0">
+            {children}
+          </h1>
+        );
+      },
+      h2: ({ children }: { children?: React.ReactNode }) => {
+        const id = slugify(String(children ?? ''));
+        return (
+          <h2 id={id} className="text-2xl font-bold text-[#0b1220] mt-10 mb-4 pt-6 border-t border-[#0b1220]/8">
+            {children}
+          </h2>
+        );
+      },
+      h3: ({ children }: { children?: React.ReactNode }) => {
+        const id = slugify(String(children ?? ''));
+        return (
+          <h3 id={id} className="text-lg font-bold text-[#0b1220] mt-8 mb-3">{children}</h3>
+        );
+      },
+      h4: ({ children }: { children?: React.ReactNode }) => {
+        const id = slugify(String(children ?? ''));
+        return (
+          <h4 id={id} className="text-base font-bold text-[#0b1220] mt-6 mb-2">{children}</h4>
+        );
+      },
+      h5: ({ children }: { children?: React.ReactNode }) => {
+        const id = slugify(String(children ?? ''));
+        return (
+          <h5 id={id} className="text-sm font-bold text-[#2a3b52] mt-4 mb-2">{children}</h5>
+        );
+      },
       p: ({ children }: { children?: React.ReactNode }) => (
-        <p className="text-sm text-[#475272] leading-relaxed mb-4">{children}</p>
+        <p className="text-sm text-[#2a3b52] leading-relaxed mb-4">{children}</p>
       ),
       a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
-        <a href={href} className="text-[#1e7d55] font-medium underline underline-offset-2 hover:text-[#256B48] transition-colors">
+        <a href={href} className="text-[#1f6f5c] font-medium underline underline-offset-2 hover:text-[#1a5d4c] transition-colors">
           {children}
         </a>
       ),
       ul: ({ children }: { children?: React.ReactNode }) => (
-        <ul className="text-sm text-[#475272] leading-relaxed mb-4 ml-5 list-disc space-y-1.5">{children}</ul>
+        <ul className="text-sm text-[#2a3b52] leading-relaxed mb-4 ml-5 list-disc space-y-1.5">{children}</ul>
       ),
       ol: ({ children }: { children?: React.ReactNode }) => (
-        <ol className="text-sm text-[#475272] leading-relaxed mb-4 ml-5 list-decimal space-y-1.5">{children}</ol>
+        <ol className="text-sm text-[#2a3b52] leading-relaxed mb-4 ml-5 list-decimal space-y-1.5">{children}</ol>
       ),
       li: ({ children }: { children?: React.ReactNode }) => <li className="text-sm text-[#475272]">{children}</li>,
       blockquote: ({ children }: { children?: React.ReactNode }) => (
-        <blockquote className="rounded-xl border-l-4 border-[#f1be25] bg-[#f1be25]/5 px-5 py-3 my-4 [&>p]:mb-0 [&>p]:text-[#475272]">
+        <blockquote className="rounded-xl border-l-4 border-[#c89b3c] bg-[#c89b3c]/10 px-5 py-3 my-4 [&>p]:mb-0 [&>p]:text-[#2a3b52]">
           {children}
         </blockquote>
       ),
@@ -70,7 +85,7 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
         const isInline = !className;
         if (isInline) {
           return (
-            <code className="rounded-md bg-[#060d26]/5 px-1.5 py-0.5 text-[13px] font-medium text-[#1e7d55] font-mono">
+            <code className="rounded-md bg-[#0b1220]/5 px-1.5 py-0.5 text-[13px] font-medium text-[#1f6f5c] font-mono">
               {children}
             </code>
           );
@@ -82,27 +97,27 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
         );
       },
       pre: ({ children }: { children?: React.ReactNode }) => (
-        <pre className="rounded-xl bg-[#0f172a] text-[#e2e8f0] p-5 overflow-x-auto mb-4 text-[13px] leading-relaxed font-mono shadow-sm border border-[#1e293b]">
+        <pre className="rounded-xl bg-[#0d1624] text-[#e2e8f0] p-5 overflow-x-auto mb-4 text-[13px] leading-relaxed font-mono shadow-sm border border-[#172033]">
           {children}
         </pre>
       ),
       table: ({ children }: { children?: React.ReactNode }) => (
-        <div className="overflow-x-auto mb-4 rounded-xl border border-[#060d26]/8">
+        <div className="overflow-x-auto mb-4 rounded-xl border border-[#0b1220]/8">
           <table className="w-full text-sm">{children}</table>
         </div>
       ),
       thead: ({ children }: { children?: React.ReactNode }) => (
-        <thead className="bg-[#f8fafc] border-b border-[#060d26]/8">{children}</thead>
+        <thead className="bg-[#f5f2ec] border-b border-[#0b1220]/8">{children}</thead>
       ),
       th: ({ children }: { children?: React.ReactNode }) => (
-        <th className="px-4 py-2.5 text-left text-xs font-bold text-[#475272] uppercase tracking-wider">{children}</th>
+        <th className="px-4 py-2.5 text-left text-xs font-bold text-[#2a3b52] uppercase tracking-wider">{children}</th>
       ),
       td: ({ children }: { children?: React.ReactNode }) => (
-        <td className="px-4 py-2.5 text-sm text-[#475272] border-t border-[#060d26]/4">{children}</td>
+        <td className="px-4 py-2.5 text-sm text-[#2a3b52] border-t border-[#0b1220]/4">{children}</td>
       ),
       hr: () => <hr className="divider-gradient my-8" />,
       strong: ({ children }: { children?: React.ReactNode }) => (
-        <strong className="font-bold text-[#060d26]">{children}</strong>
+        <strong className="font-bold text-[#0b1220]">{children}</strong>
       ),
     }),
     [],
@@ -113,7 +128,7 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 rounded-lg animate-pulse" style={{ background: 'var(--gradient-primary)' }} />
-          <p className="text-sm text-[#707993]">3%1B+%@-*2#&</p>
+            <p className="text-sm text-[#5b6b80]">กำลังโหลดเอกสาร…</p>
         </div>
       </div>
     );
@@ -121,8 +136,8 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
 
   if (!content) {
     return (
-      <div className="rounded-2xl border border-dashed border-[#060d26]/10 bg-[#f8fafc] p-8 text-center">
-        <p className="text-sm text-[#707993]">D!H*2!2#B+% README.md DI</p>
+      <div className="rounded-2xl border border-dashed border-[#0b1220]/10 bg-[#f5f2ec] p-8 text-center">
+          <p className="text-sm text-[#5b6b80]">ไม่พบ README ที่ร้องขอ</p>
       </div>
     );
   }

@@ -22,6 +22,8 @@ type DemoAuthContextValue = {
   logout: () => Promise<void>;
 };
 
+const SSO_PAYLOAD_KEY = 'gov_demo_sso_payload';
+
 const DemoAuthContext = createContext<DemoAuthContextValue | null>(null);
 
 export function DemoAuthProvider({ children }: { children: ReactNode }) {
@@ -37,10 +39,18 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok || !data.authenticated) {
         setUser(null);
         setSsoPayload(null);
+        sessionStorage.removeItem(SSO_PAYLOAD_KEY);
         return;
       }
       setUser(data.user ?? null);
-      setSsoPayload(data.ssoPayload ?? null);
+      const cached = sessionStorage.getItem(SSO_PAYLOAD_KEY);
+      if (cached) {
+        const cachedPayload = JSON.parse(cached) as Record<string, unknown>;
+        const hasResidences = Array.isArray((data.ssoPayload as any)?.residences);
+        setSsoPayload(hasResidences ? (data.ssoPayload ?? null) : cachedPayload);
+      } else {
+        setSsoPayload(data.ssoPayload ?? null);
+      }
     } catch {
       setUser(null);
       setSsoPayload(null);
@@ -54,7 +64,10 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
   const loginFromResult = useCallback(
     (result: SsoCallbackResult) => {
       if (result.user) setUser(result.user);
-      if (result.ssoPayload) setSsoPayload(result.ssoPayload);
+      if (result.ssoPayload) {
+        setSsoPayload(result.ssoPayload as Record<string, unknown>);
+        sessionStorage.setItem(SSO_PAYLOAD_KEY, JSON.stringify(result.ssoPayload));
+      }
       void refreshSession();
     },
     [refreshSession],
@@ -64,6 +77,7 @@ export function DemoAuthProvider({ children }: { children: ReactNode }) {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
     setUser(null);
     setSsoPayload(null);
+    sessionStorage.removeItem(SSO_PAYLOAD_KEY);
     router.push('/login');
   }, [router]);
 

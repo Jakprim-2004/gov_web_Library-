@@ -5,7 +5,12 @@ import { StaffSidebar } from 'gov-layout';
 import { useDemoAuth } from '@/lib/demo-auth';
 import { STAFF_MENU } from '@/lib/demo-menu';
 
-export function GlobalSidebar() {
+interface GlobalSidebarProps {
+  isOpen?: boolean;
+  onToggle?: () => void;
+}
+
+export function GlobalSidebar({ isOpen, onToggle }: GlobalSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, isLoggedIn, logout } = useDemoAuth();
@@ -28,6 +33,8 @@ export function GlobalSidebar() {
       onNavigate={(path) => router.push(path)}
       onLogout={() => void logout()}
       collapsible
+      isOpen={isOpen}
+      onToggle={onToggle}
     />
   );
 }

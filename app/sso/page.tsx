@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useDemoAuth } from '@/lib/demo-auth';
 import { ReadmeViewer } from '@/components/ReadmeViewer';
 
@@ -7,9 +8,10 @@ export default function SsoShowcasePage() {
   const { user, ssoPayload, isLoggedIn, logout } = useDemoAuth();
 
   // ดึงข้อมูลจาก ssoPayload (ข้อมูลดิบจาก IAM-GOV API)
-  const ssoUser = (ssoPayload as any)?.user || {};
+  const normalizedPayload = (ssoPayload as any)?.data || ssoPayload || {};
+  const ssoUser = normalizedPayload?.user || {};
   const memberships: any[] = ssoUser.memberships || [];
-  const residences: any[] = (ssoPayload as any)?.residences || [];
+  const residences: any[] = normalizedPayload?.residences || [];
 
   return (
     <main className="mx-auto max-w-5xl p-6 md:p-10 animate-fade-in-up">
@@ -178,9 +180,7 @@ export default function SsoShowcasePage() {
               <div className="space-y-3">
                 {residences.map((r: any, i: number) => (
                   <div key={i} className="rounded-2xl border border-[#060d26]/6 bg-white p-5 shadow-sm">
-                    <pre className="text-xs text-[#475272] whitespace-pre-wrap overflow-auto font-mono">
-                      {JSON.stringify(r, null, 2)}
-                    </pre>
+                    <ExpandableJson data={r} tone="light" />
                   </div>
                 ))}
               </div>
@@ -194,10 +194,8 @@ export default function SsoShowcasePage() {
               title="Raw SSO Payload"
               subtitle="ข้อมูลดิบทั้งหมดที่ได้จาก IAM-GOV API (JSON)"
             />
-            <div className="rounded-2xl border border-[#060d26]/6 bg-[#0f172a] p-6 shadow-sm overflow-auto">
-              <pre className="text-xs text-emerald-400 font-mono whitespace-pre-wrap leading-relaxed">
-                {JSON.stringify(ssoPayload, null, 2)}
-              </pre>
+            <div className="rounded-2xl border border-[#060d26]/6 bg-[#0f172a] p-6 shadow-sm">
+              <ExpandableJson data={ssoPayload} tone="dark" />
             </div>
           </section>
 
@@ -208,10 +206,8 @@ export default function SsoShowcasePage() {
               title="Session User (Mapped)"
               subtitle="ข้อมูลผู้ใช้ที่ถูก map แล้วและเก็บใน session cookie"
             />
-            <div className="rounded-2xl border border-[#6982e1]/15 bg-[#6982e1]/5 p-6 shadow-sm overflow-auto">
-              <pre className="text-xs text-[#475272] font-mono whitespace-pre-wrap leading-relaxed">
-                {JSON.stringify(user, null, 2)}
-              </pre>
+            <div className="rounded-2xl border border-[#6982e1]/15 bg-[#6982e1]/5 p-6 shadow-sm">
+              <ExpandableJson data={user} tone="light" />
             </div>
           </section>
 
@@ -330,6 +326,33 @@ function EmptyState({ text }: { text: string }) {
   return (
     <div className="rounded-2xl border border-dashed border-[#060d26]/10 bg-[#f8fafc] p-8 text-center">
       <p className="text-sm text-[#707993]">{text}</p>
+    </div>
+  );
+}
+
+function ExpandableJson({ data, tone }: { data: unknown; tone: 'light' | 'dark' }) {
+  const [expanded, setExpanded] = useState(false);
+  const textClass = tone === 'dark' ? 'text-white/90' : 'text-[#475272]';
+  const buttonClass =
+    tone === 'dark'
+      ? 'border-white/15 text-white/70 hover:border-white/35 hover:text-white'
+      : 'border-[#0b1220]/10 text-[#2a3b52] hover:border-[#1f6f5c]/30 hover:text-[#1f6f5c]';
+
+  return (
+    <div>
+      <div
+        className={`font-mono text-xs whitespace-pre-wrap leading-relaxed overflow-auto ${textClass}`}
+        style={{ maxHeight: expanded ? 520 : 220, overflow: expanded ? 'auto' : 'hidden' }}
+      >
+        {JSON.stringify(data, null, 2)}
+      </div>
+      <button
+        type="button"
+        onClick={() => setExpanded((prev) => !prev)}
+        className={`mt-3 inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold ${buttonClass}`}
+      >
+        {expanded ? 'ย่อ' : 'แสดงเพิ่มเติม'}
+      </button>
     </div>
   );
 }

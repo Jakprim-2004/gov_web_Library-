@@ -70,53 +70,65 @@ export default function HomePage() {
         <div className="hero-grid" />
 
         <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 md:py-28">
-          <div className="max-w-3xl">
-            {/* Logo + Badge */}
-            <div className="animate-fade-in-up mb-6 flex items-center gap-4">
-              <GovLogo size={300} className="drop-shadow-lg" />
-              
+          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
+            <div>
+              <div className="hero-kicker animate-fade-in-up">Government Design System</div>
+
+              <h1 className="hero-title animate-fade-in-up delay-100 mt-5">
+                GOV Components Library
+                <span>Design System</span>
+              </h1>
+
+              <p className="hero-subtitle animate-fade-in-up delay-200 mt-6 max-w-xl">
+                เว็บตัวอย่างที่รวมทั้งสามแพ็กเกจ — <strong className="text-white/90">gov-token-css</strong>,{' '}
+                <strong className="text-white/90">gov-layout</strong>,{' '}
+                <strong className="text-white/90">gov-sso-login</strong> — ใช้เป็นจุดอ้างอิงตอน integrate กับ Next.js
+              </p>
+
+              <div className="animate-fade-in-up delay-300 mt-8 flex flex-wrap gap-3">
+                <Link href="/guide" className="btn-primary" style={{ fontSize: '15px', padding: '12px 28px' }}>
+                  เริ่มต้นใช้งาน
+                </Link>
+                <Link
+                  href="/tokens"
+                  className="btn-ghost text-white/80 border-white/25 hover:bg-white/10 hover:border-white/40"
+                  style={{ fontSize: '15px', padding: '12px 28px' }}
+                >
+                  ดู Design Tokens
+                </Link>
+              </div>
             </div>
 
-            {/* Title */}
-            <h1 className="animate-fade-in-up delay-100 text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl"
-              style={{ lineHeight: '1.1' }}
-            >
-              GOV Components Library
-              <span className="block mt-1 bg-gradient-to-r from-[#80d897] to-[#2aa876] bg-clip-text text-transparent">
-                Design System
-              </span>
-            </h1>
+            <div className="animate-fade-in-up delay-200">
+              <div className="glass-dark rounded-[28px] border border-white/10 p-6 md:p-8 shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.24em] text-white/50">Government UI</p>
+                    <p className="mt-2 text-2xl font-semibold text-white">Integration Ready</p>
+                    <p className="mt-1 text-sm text-white/60">มาตรฐานโทนราชการ + เอกสารไทยครบถ้วน</p>
+                  </div>
+                  <GovLogo size={96} className="drop-shadow" />
+                </div>
 
-            {/* Description */}
-            <p className="animate-fade-in-up delay-200 mt-6 text-base md:text-lg text-white/60 leading-relaxed max-w-xl">
-              เว็บตัวอย่างที่รวมทั้งสามแพ็กเกจ — <strong className="text-white/80">gov-token-css</strong>,{' '}
-              <strong className="text-white/80">gov-layout</strong>,{' '}
-              <strong className="text-white/80">gov-sso-login</strong> — ใช้เป็นจุดอ้างอิงตอน integrate กับ Next.js
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="animate-fade-in-up delay-300 mt-8 flex flex-wrap gap-3">
-              <Link href="/guide" className="btn-primary" style={{ fontSize: '15px', padding: '12px 28px' }}>
-                เริ่มต้นใช้งาน
-              </Link>
-              <Link href="/tokens" className="btn-ghost text-white/80 border-white/15 hover:bg-white/8 hover:border-white/25" style={{ fontSize: '15px', padding: '12px 28px' }}>
-                ดู Design Tokens
-              </Link>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs text-white/60">Design Tokens</p>
+                    <p className="mt-2 text-lg font-semibold text-white">Ready-to-scale</p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <p className="text-xs text-white/60">SSO + Layout</p>
+                    <p className="mt-2 text-lg font-semibold text-white">Gov-grade UX</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="animate-fade-in-up delay-400 mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 max-w-2xl">
+          <div className="animate-fade-in-up delay-400 mt-14 hero-metrics max-w-2xl">
             {STATS.map((stat) => (
-              <div
-                key={stat.label}
-                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/5 px-4 py-3 backdrop-blur-sm"
-              >
-                <span className="text-xl">{stat.icon}</span>
-                <div>
-                  <p className="text-xl font-bold text-white">{stat.value}</p>
-                  <p className="text-[11px] text-white/50 font-medium">{stat.label}</p>
-                </div>
+              <div key={stat.label} className="hero-metric">
+                <p>{stat.value}</p>
+                <p>{stat.label}</p>
               </div>
             ))}
           </div>
@@ -127,10 +139,10 @@ export default function HomePage() {
       <main className="mx-auto max-w-7xl px-6 py-12">
         {/* Section Title */}
         <div className="animate-fade-in-up mb-8">
-          <h2 className="text-2xl font-bold tracking-tight text-[#060d26]">
+          <h2 className="text-2xl font-bold tracking-tight text-[#0b1220]">
             สำรวจ Components
           </h2>
-          <p className="mt-1 text-sm text-[#707993]">
+          <p className="mt-1 text-sm text-[#5b6b80]">
             เลือก package ที่ต้องการเพื่อดูตัวอย่างการใช้งานจริง
           </p>
         </div>
@@ -144,18 +156,18 @@ export default function HomePage() {
               className={`card-premium group p-6 animate-fade-in-up delay-${(i + 1) * 100}`}
             >
               {/* Content */}
-              <h3 className="text-lg font-bold text-[#060d26] tracking-tight group-hover:text-[#1e7d55] transition-colors">
+              <h3 className="text-lg font-bold text-[#0b1220] tracking-tight group-hover:text-[#1f6f5c] transition-colors">
                 {card.title}
               </h3>
-              <p className="text-xs font-medium text-[#1e7d55]/60 mt-0.5">
+              <p className="text-xs font-medium text-[#1f6f5c]/70 mt-0.5">
                 {card.subtitle}
               </p>
-              <p className="mt-3 text-sm text-[#707993] leading-relaxed">
+              <p className="mt-3 text-sm text-[#5b6b80] leading-relaxed">
                 {card.desc}
               </p>
 
               {/* Arrow */}
-              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-[#1e7d55] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 group-hover:translate-x-1">
+              <div className="mt-5 flex items-center gap-1.5 text-xs font-semibold text-[#1f6f5c] opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-0 group-hover:translate-x-1">
                 ดูตัวอย่าง
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 12h14M12 5l7 7-7 7" />
@@ -170,10 +182,10 @@ export default function HomePage() {
           <div className="p-6 md:p-8">
             <div className="flex items-center gap-3 mb-6">
               <div>
-                <h2 className="text-xl font-bold tracking-tight text-[#060d26]">
+                <h2 className="text-xl font-bold tracking-tight text-[#0b1220]">
                   Quick Start
                 </h2>
-                <p className="text-xs text-[#707993]">เริ่มต้นใน 3 ขั้นตอน</p>
+                <p className="text-xs text-[#5b6b80]">เริ่มต้นใน 3 ขั้นตอน</p>
               </div>
             </div>
 
@@ -189,14 +201,14 @@ npm run dev
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 rounded-xl border border-[#95c135]/20 bg-[#95c135]/5 px-4 py-2">
-                <span className="text-xs font-medium text-[#475272]">SSO Ready</span>
+              <div className="flex items-center gap-2 rounded-xl border border-[#1f6f5c]/15 bg-[#1f6f5c]/5 px-4 py-2">
+                <span className="text-xs font-medium text-[#2a3b52]">SSO Ready</span>
               </div>
-              <div className="flex items-center gap-2 rounded-xl border border-[#6982e1]/20 bg-[#6982e1]/5 px-4 py-2">
-                <span className="text-xs font-medium text-[#475272]">Dark Mode</span>
+              <div className="flex items-center gap-2 rounded-xl border border-[#2b7aa0]/20 bg-[#2b7aa0]/5 px-4 py-2">
+                <span className="text-xs font-medium text-[#2a3b52]">Dark Mode</span>
               </div>
-              <div className="flex items-center gap-2 rounded-xl border border-[#f1be25]/20 bg-[#f1be25]/5 px-4 py-2">
-                <span className="text-xs font-medium text-[#475272]">Responsive</span>
+              <div className="flex items-center gap-2 rounded-xl border border-[#c89b3c]/20 bg-[#c89b3c]/10 px-4 py-2">
+                <span className="text-xs font-medium text-[#2a3b52]">Responsive</span>
               </div>
             </div>
           </div>
