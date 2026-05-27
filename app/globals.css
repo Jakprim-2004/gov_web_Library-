@@ -3,12 +3,17 @@
 @import "gov-token-css/base";
 @import "gov-token-css/theme";
 @import "gov-token-css/typography";
+@import "gov-layout/styles.css"; 
 
+@source "../app/**/*.{ts,tsx,js,jsx,mdx}";
+@source "../components/**/*.{ts,tsx,js,jsx,mdx}";
+@source "../lib/**/*.{ts,tsx,js,jsx,mdx}";
 /* ──────────────── CSS Variables ──────────────── */
 :root {
-  --font-sans: "Noto Sans Thai", "Sarabun", system-ui, sans-serif;
-  --font-serif: "Noto Serif Thai", "Noto Serif", serif;
-  --font-mono: "Chakra Petch", "JetBrains Mono", monospace;
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-inter);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
   --glass-bg: rgba(255, 255, 255, 0.78);
   --glass-border: rgba(11, 18, 32, 0.08);
   --glass-blur: 18px;
@@ -39,7 +44,6 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--ink-900);
@@ -75,9 +79,6 @@ pre,
   color: var(--accent-1);
 }
 
-h1,
-h2,
-h3,
 .font-serif {
   font-family: var(--font-serif);
 }
@@ -603,6 +604,28 @@ h3,
   overflow: hidden;
 }
 
+.swatch-preview-bar {
+  height: 64px;
+}
+
+.swatch-preview-text {
+  background-color: currentColor;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swatch-text-sample {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
 .swatch-preview::after {
   content: '';
   position: absolute;
@@ -786,6 +809,8 @@ h3,
   background: linear-gradient(90deg, transparent 0%, rgba(31, 111, 92, 0.2) 50%, transparent 100%);
   border: none;
 }
+
+
 
 /* ──────────────── Dark mode ──────────────── */
 html.dark body {

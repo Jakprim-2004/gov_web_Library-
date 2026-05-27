@@ -1,25 +1,21 @@
 import type { Metadata } from 'next';
-import { Chakra_Petch, Noto_Sans_Thai, Noto_Serif_Thai } from 'next/font/google';
+import { Inter, Noto_Sans_Thai } from 'next/font/google';
 import { AppShell } from '@/components/AppShell';
 import { AppProviders } from './providers';
 import './globals.css';
 
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
 const notoSansThai = Noto_Sans_Thai({
   subsets: ['thai', 'latin'],
   weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-sans',
-});
-
-const notoSerifThai = Noto_Serif_Thai({
-  subsets: ['thai', 'latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-serif',
-});
-
-const chakraPetch = Chakra_Petch({
-  subsets: ['thai', 'latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-mono',
+  variable: '--font-noto-sans-thai',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -30,9 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="th">
-      <body
-        className={`min-h-screen gov-body ${notoSansThai.variable} ${notoSerifThai.variable} ${chakraPetch.variable}`}
-      >
+      <body className={`min-h-screen gov-body ${inter.variable} ${notoSansThai.variable}`}>
         <AppProviders>
           <AppShell>{children}</AppShell>
         </AppProviders>

@@ -1,6 +1,8 @@
 import type { TokenGroup } from '@/lib/token-catalog';
 
 export function ColorSwatchGrid({ group }: { group: TokenGroup }) {
+  const isTextGroup = group.id === 'text';
+
   return (
     <section id={group.id} className="scroll-mt-24 animate-fade-in-up">
       <div className="section-header">
@@ -39,7 +41,15 @@ export function ColorSwatchGrid({ group }: { group: TokenGroup }) {
         {group.items.map((item) => (
           <div key={item.name} className="swatch-card group">
             {/* Color Preview */}
-            <div className={`swatch-preview ${item.className}`} />
+            <div
+              className={`swatch-preview swatch-preview-bar ${
+                isTextGroup
+                  ? `swatch-preview-text ${item.className}`
+                  : item.className
+              }`}
+            >
+              {isTextGroup && <span className="swatch-text-sample">Aa</span>}
+            </div>
 
             {/* Info */}
             <div className="p-4 space-y-2">
