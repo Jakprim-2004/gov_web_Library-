@@ -10,6 +10,8 @@
 @source "../lib/**/*.{ts,tsx,js,jsx,mdx}";
 /* ──────────────── CSS Variables ──────────────── */
 :root {
+  --font-heading: 'HelveticaNowDisplay-Medium', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'HelveticaNowDisplayW01-Rg', 'Helvetica Neue', Arial, sans-serif;
   --font-sans: var(--font-inter);
   --font-serif: var(--font-inter);
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
@@ -260,6 +262,30 @@ pre,
 
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes slideUpPills {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up-pills {
+  animation: slideUpPills 0.4s ease both;
 }
 
 /* Stagger delays */

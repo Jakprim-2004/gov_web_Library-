@@ -3,6 +3,34 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import * as GovIcons from '@/components/GovIcons';
+
+const EMOJI_ICON_MAP: Record<string, keyof typeof GovIcons> = {
+  '🏠': 'IconHome',
+  '🔍': 'IconSearch',
+  '🔔': 'IconBell',
+  '📁': 'IconFolder',
+  '📋': 'IconClipboard',
+  '📄': 'IconFileText',
+  '🗓': 'IconCalendar',
+  '🗓️': 'IconCalendar',
+  '👤': 'IconUser',
+  '👥': 'IconUsers',
+  '⚙️': 'IconGear',
+  '⚙': 'IconGear',
+  '🔧': 'IconWrench',
+  '🛡': 'IconShield',
+  '🛡️': 'IconShield',
+  '❓': 'IconHelpCircle',
+  '📊': 'IconBarChart',
+  '⏱': 'IconHistory',
+  '⏱️': 'IconHistory',
+  '💾': 'IconDatabase',
+  '🧩': 'IconTokens',
+  '🪟': 'IconLayout',
+  '📖': 'IconGuide',
+  '➜': 'IconChevronRight',
+};
 
 function slugify(text: string) {
   return text
@@ -112,9 +140,23 @@ export function ReadmeViewer({ doc = 'root' }: { doc?: string }) {
       th: ({ children }: { children?: React.ReactNode }) => (
         <th className="px-4 py-2.5 text-left text-xs font-bold text-[#2a3b52] uppercase tracking-wider">{children}</th>
       ),
-      td: ({ children }: { children?: React.ReactNode }) => (
-        <td className="px-4 py-2.5 text-sm text-[#2a3b52] border-t border-[#0b1220]/4">{children}</td>
-      ),
+      td: ({ children }: { children?: React.ReactNode }) => {
+        let content = children;
+        if (typeof children === 'string') {
+          const trimStr = children.trim();
+          const cleanStr = trimStr.replace(/[\uFE0F\u200D]/g, '');
+          const IconName = EMOJI_ICON_MAP[trimStr] || EMOJI_ICON_MAP[cleanStr];
+          if (IconName) {
+            const IconComp = GovIcons[IconName];
+            if (IconComp) {
+              content = <div className="flex justify-center items-center w-full h-full text-[#1e7d55]"><IconComp size={24} /></div>;
+            }
+          }
+        }
+        return (
+          <td className="px-4 py-2.5 text-sm text-[#2a3b52] border-t border-[#0b1220]/4">{content}</td>
+        );
+      },
       hr: () => <hr className="divider-gradient my-8" />,
       strong: ({ children }: { children?: React.ReactNode }) => (
         <strong className="font-bold text-[#0b1220]">{children}</strong>

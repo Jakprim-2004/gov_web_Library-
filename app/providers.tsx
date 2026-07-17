@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { SettingsProvider } from 'gov-layout';
 import { DemoAuthProvider } from '@/lib/demo-auth';

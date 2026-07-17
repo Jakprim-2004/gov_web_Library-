@@ -1,356 +1,1155 @@
-# คู่มือใช้งาน GOV Components Library (gov-token-css + gov-layout + gov-sso-login)
+# คู่มือ E-Service × IAM-GOV — ทำตามได้เลย
 
-เอกสารนี้สอนวิธีประกอบทั้งสามแพ็กเกจในโปรเจค Next.js พร้อมตารางสี/class ที่ใช้บ่อย  
-เว็บตัวอย่าง: รัน `npm run dev` ในโฟลเดอร์ `demo` แล้วเปิด http://localhost:3100
+> อ่านครั้งเดียว ทำตามลำดับ — ครอบคลุมตั้งแต่ติดตั้ง library จนถึง Residence API และ Claim Flow
 
----
+**เวอร์ชันปัจจุบัน: `1.4.0`**
 
-## สารบัญ
-
-1. [ติดตั้งและโครงสร้าง](#1-ติดตั้งและโครงสร้าง)
-2. [gov-token-css — สีและ CSS class](#2-gov-token-css--สีและ-css-class)
-3. [gov-layout — Components](#3-gov-layout--components)
-4. [gov-sso-login — เข้าสู่ระบบ](#4-gov-sso-login--เข้าสู่ระบบ)
-5. [ประกอบทั้งสามใน app เดียว](#5-ประกอบทั้งสามใน-app-เดียว)
+> **v1.4.0 — SSO-first Auto Login:** เพิ่ม `checkSsoServer: true` ใน `useAutoLogin` — เช็ค SSO session โดยตรงและแลก token โดยไม่ต้อง redirect
 
 ---
 
-## 1. ติดตั้งและโครงสร้าง
+## ก่อนเริ่ม — สิ่งที่ต้องมี
+
+| สิ่งที่ต้องมี | รายละเอียด |
+|---|---|
+| Node.js | >= 18 |
+| React | >= 18 |
+| Backend (NestJS) | มี endpoint `/auth/sso-callback` |
+| IAM-GOV credentials | service code + API key (ลงทะเบียนที่ [govcenter.co](https://govcenter.co)) |
+
+---
+
+## ขั้นตอนที่ 1 — ติดตั้ง Library
 
 ```bash
-npm install gov-token-css gov-layout gov-sso-login
+npm install gov-sso-login
 ```
 
-| แพ็กเกจ | ประเภท | Build ก่อนใช้? |
-|--------|--------|----------------|
-| gov-token-css | CSS เท่านั้น | ไม่ต้อง |
-| gov-layout | React (dist) | ใช่ — `npm run build` ใน package |
-| gov-sso-login | React (dist) | ใช่ |
+แก้ไข `next.config.ts` เพิ่ม `transpilePackages`:
 
-**next.config.ts**
-
-```ts
+```typescript
 const nextConfig = {
-  transpilePackages: ['gov-layout', 'gov-sso-login'],
+  transpilePackages: ['gov-sso-login'],
 };
 export default nextConfig;
 ```
 
-**app/globals.css**
+---
 
-```css
-@import "tailwindcss";
-@import "gov-token-css/tokens";
-@import "gov-token-css/base";
-@import "gov-token-css/theme";
-@import "gov-token-css/typography";
+## ขั้นตอนที่ 2 — ตั้งค่า Environment Variables
+
+### Frontend (`.env.local`)
+
+```env
+NEXT_PUBLIC_API_URL=https://api.your-domain.com
+NEXT_PUBLIC_IAM_GOV_FRONTEND_URL=https://auth.govcenter.co
+NEXT_PUBLIC_E_SERVICE_CODE=your-service-code
+NEXT_PUBLIC_FRONTEND_URL=https://your-domain.com
 ```
+
+### Backend (`.env`)
+
+```env
+IAM_API_URL=https://api-auth.govcenter.co
+E_SERVICE_CODE=your-service-code
+E_SERVICE_API_KEY=your-api-key        # ← ห้ามใส่ฝั่ง frontend เด็ดขาด
+```
+
+> **กฎเหล็ก:** `E_SERVICE_API_KEY` อยู่บน backend เท่านั้น ห้ามใส่ใน `NEXT_PUBLIC_*` หรือ `VITE_*`
 
 ---
 
-## 2. gov-token-css — สีและ CSS class
+## ขั้นตอนที่ 3 — สร้าง SSO Config (Frontend)
 
-### วิธี import
+สร้างไฟล์ `lib/sso-config.ts`:
 
-| ไฟล์ | ได้อะไร |
-|------|---------|
-| `gov-token-css/tokens` | CSS variables (`:root`) |
-| `gov-token-css/base` | shadcn vars, body, dark |
-| `gov-token-css/theme` | Tailwind v4 `@theme` → ใช้ class `bg-brand-primary` ได้ |
-| `gov-token-css/typography` | class `.typo-*` |
-| `gov-token-css` | รวมทั้งหมด + tailwindcss |
+```typescript
+import type { GovSsoConfig } from 'gov-sso-login';
 
-### Brand — เรียก class แล้วได้สีพื้นหลัง/ข้อความ
-
-| Tailwind class | ค่าสี | ใช้เมื่อ |
-|----------------|-------|----------|
-| `bg-brand-primary` / `text-brand-primary` | `#1e7d55` | ปุ่มหลัก, ลิงก์เน้น |
-| `bg-brand-secondary` / `text-brand-secondary` | `#80d897` | hover, accent อ่อน |
-| `bg-brand-surface` | `#faf9e5` | พื้นหลังหน้า |
-| `text-brand-text-dark` | `#05010e` | ข้อความเข้มมาก |
-
-**ตัวอย่าง**
-
-```html
-<button class="bg-brand-primary hover:bg-brand-secondary text-white px-4 py-2 rounded-square">
-  ยืนยัน
-</button>
-```
-
-### Semantic — ความหมายสถานะ
-
-| Class | สี | ความหมาย |
-|-------|-----|----------|
-| `bg-semantic-success` / `text-semantic-success` | `#95c135` | สำเร็จ |
-| `bg-semantic-warning` / `text-semantic-warning` | `#f1be25` | เตือน |
-| `bg-semantic-critical` / `text-semantic-critical` | `#f21515` | ผิดพลาด |
-| `bg-semantic-neutral` | `#707993` | ข้อมูลรอง |
-| `bg-semantic-verified` | `#6982e1` | ยืนยันแล้ว |
-
-```html
-<span class="text-semantic-critical">กรุณากรอกข้อมูล</span>
-```
-
-### Text — สีข้อความ
-
-| Class | Light | ใช้เมื่อ |
-|-------|-------|----------|
-| `text-text-primary` | `#060d26` | หัวข้อ, เนื้อหาหลัก |
-| `text-text-secondary` | `#1e7d55` | คำรองแบบ brand |
-| `text-text-tertiary` | `#475272` | คำอธิบาย |
-| `text-text-placeholder` | `#707993` | placeholder input |
-| `text-text-critical` | `#f21515` | ข้อความ error |
-| `text-text-disable` | `#c8cedd` | ปิดใช้งาน |
-
-ใน **dark mode** (`html` มี class `dark`) ค่า primary/tertiary สลับเป็นโทนอ่อนอัตโนมัติ
-
-### ปุ่ม
-
-| Class | สี |
-|-------|-----|
-| `bg-btn-primary` | `#1e7d55` |
-| `hover:bg-btn-hover` | `#80d897` |
-| `bg-btn-default` | `#fcfcff` |
-
-### Border
-
-| Class | ใช้เมื่อ |
-|-------|----------|
-| `border-border-default` | ขอบ input ปกติ |
-| `border-border-hover` | focus |
-| `border-border-neutral` | การ์ด, เส้นแบ่ง |
-| `border-border-critical` | สถานะ error |
-
-### Status (badge / chip)
-
-| Class | สี |
-|-------|-----|
-| `bg-status-stable` | `#95c135` |
-| `bg-status-warning` | `#f8842d` |
-| `bg-status-danger` | `#991d1d` |
-| `bg-status-default` | `#8df0ff` |
-
-### Icon (โมดูล)
-
-| Class | โมดูล |
-|-------|--------|
-| `text-icon-water` | ประปา |
-| `text-icon-tax` | ภาษี |
-| `text-icon-security` | ความปลอดภัย |
-| `text-icon-success` / `text-icon-warning` / `text-icon-critical` | สถานะ |
-
-### Typography — class → ลักษณะตัวอักษร
-
-| Class | ผลลัพธ์ |
-|-------|---------|
-| `typo-h1` | หัวข้อใหญ่ (responsive 3 breakpoints) |
-| `typo-h2` | หัวข้อรอง |
-| `typo-h3` | หัวข้อย่อย |
-| `typo-body` | เนื้อหาทั่วไป |
-| `typo-sub` | คำบรรยายใต้หัวข้อ |
-| `typo-button` | ข้อความบนปุ่ม |
-| `typo-button-sm` | ปุ่มเล็ก |
-| `typo-menu` | เมนู navigation |
-| `typo-tags` | แท็ก / label เล็ก |
-| `typo-logo` | โลโก้ข้อความ |
-| `typo-text-button` | ลิงก์แบบปุ่มข้อความ |
-
-```html
-<h1 class="typo-h1 text-text-primary">หัวข้อหน้า</h1>
-<p class="typo-body text-text-tertiary">รายละเอียด</p>
-```
-
-### Spacing
-
-| Class | ค่า | ใช้กับ |
-|-------|-----|--------|
-| `p-1x` / `m-1x` / `gap-1x` | 8px | ช่องว่างเล็ก |
-| `p-2x` | 16px | |
-| `p-3x` | 24px | padding การ์ด |
-| `p-4x` | 32px | margin หน้า |
-
-### Border radius
-
-| Class | ค่า |
-|-------|-----|
-| `rounded-square` | 8px |
-| `rounded-square-hard` | 16px |
-| `rounded-circle` | 100px (pill) |
-
-### Shadow
-
-| Class | ใช้เมื่อ |
-|-------|----------|
-| `shadow-smooth-low` | การ์ดเบา |
-| `shadow-smooth-medium` | การ์ดทั่วไป |
-| `shadow-smooth-high` | modal, dropdown |
-
-### Foundation palettes (ใช้เป็น accent)
-
-ตัวอย่างที่ใช้บ่อย: `bg-apple-medium`, `bg-fuji-light`, `bg-sky-soft`, `bg-fuan-medium`, `bg-take-medium`, `bg-saffron-medium`  
-ดูรายการเต็มใน `gov-token-css/README.md`
-
-### CSS variable โดยตรง (ไม่ผ่าน Tailwind)
-
-```css
-.custom {
-  color: var(--color-alias-color-brand-primary);
-  padding: var(--spacing-space3x);
-  border-radius: var(--border-radius-square);
-}
-```
-
----
-
-## 3. gov-layout — Components
-
-ต้องมี `SettingsProvider` ถ้าใช้ `SettingsPanel` / `useSettings`
-
-```tsx
-'use client';
-import { SettingsProvider } from 'gov-layout';
-
-export function Providers({ children }) {
-  return <SettingsProvider>{children}</SettingsProvider>;
-}
-```
-
-### StaffSidebar (เจ้าหน้าที่)
-
-| Prop | บังคับ | คำอธิบาย |
-|------|--------|----------|
-| `orgName` | ✅ | ชื่อองค์กร |
-| `menuItems` | ✅ | เมนู (`MenuItem[]`) |
-| `user` | ✅ | `{ firstName, lastName, pictureUrl }` |
-| `roleLabel` | ✅ | เช่น "เจ้าหน้าที่" |
-| `onNavigate` | ✅ | `(path) => void` |
-| `onLogout` | ✅ | ออกจากระบบ |
-| `collapsible` | | พับเป็น icon-only |
-| `orgLogo` | | URL โลโก้ |
-
-**MenuItem**
-
-```ts
-{ id: 'services', title: 'งานบริการ', path: '/x', children?: [...], icon?: <Icons.Folder /> }
-```
-
-- ไม่ส่ง `icon` → จับคู่จาก `id` อัตโนมัติ (เช่น `users` → UsersIcon)
-- `dividerAfter: true` → เส้นคั่น
-
-### UserHeader + UserSidebar (ผู้ใช้)
-
-**UserHeader** — แจ้งเตือน + เปิด sidebar
-
-| Prop | คำอธิบาย |
-|------|----------|
-| `notifications` | `{ id, title, description, date, type, isRead, category?: 'action' \| 'general' }[]` |
-| `onToggleSidebar` | กด ☰ |
-| `category: 'action'` | แสดงในแท็บ "ต้องดำเนินการ" |
-
-**UserSidebar** — `isOpen`, `onClose`, `menuItems`, `onNavigate`, `onLogout`
-
-### SettingsPanel
-
-| Prop | Default | คำอธิบาย |
-|------|---------|----------|
-| `showTheme` | `true` | แสดงสลับ light/dark |
-
-เก็บค่าใน localStorage: `app-theme`, `app-font-size`  
-Font scale: `xsmall` (0.8) … `xlarge` (1.4)
-
-### Icons
-
-```tsx
-import { Icons } from 'gov-layout';
-<Icons.Folder size={24} />
-```
-
-รายการ: Home, Search, Bell, Folder, User, Users, Gear, MapPin, LogOut, … (33 ตัว) — ดู `gov-layout/README.md`
-
----
-
-## 4. gov-sso-login — เข้าสู่ระบบ
-
-### Config
-
-```ts
 export const ssoConfig: GovSsoConfig = {
-  iamAuthUrl: 'https://auth.govcenter.co',
-  serviceCode: 'your-service-code',
-  apiBaseUrl: 'https://api.your-domain.com',
-  callbackUrl: 'https://your-domain.com/auth/callback',
+  iamAuthUrl: process.env.NEXT_PUBLIC_IAM_GOV_FRONTEND_URL || 'https://auth.govcenter.co',
+  serviceCode: process.env.NEXT_PUBLIC_E_SERVICE_CODE || 'your-service-code',
+  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  callbackUrl: `${process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'}/auth/callback`,
+
+  // Optional (v1.4.0) — สำหรับ SSO-first flow
+  // ssoSessionCheckPath: '/auth/session',   // default
+  // ssoExchangePath: '/auth/sso-session',   // default
 };
 ```
 
-### Provider (แนะนำ)
+### GovSsoConfig — ทุก field
+
+| Field | Required | Default | คำอธิบาย |
+|---|---|---|---|
+| `iamAuthUrl` | ✅ | — | URL ของ IAM-GOV auth frontend |
+| `serviceCode` | ✅ | — | Service code ที่ลงทะเบียนกับ IAM-GOV |
+| `apiBaseUrl` | ✅ | — | URL ของ backend API |
+| `callbackUrl` | ✅ | — | URL ที่ IAM-GOV redirect กลับ (frontend) |
+| `checkSessionPath` | — | `/auth/me` | Backend endpoint ตรวจ session |
+| `ssoCallbackPath` | — | `/auth/sso-callback` | Backend endpoint รับ SSO code |
+| `ssoSessionCheckPath` | — | `/auth/session` | IAM-GOV endpoint เช็ค SSO session โดยตรง (v1.4.0) |
+| `ssoExchangePath` | — | `/auth/sso-session` | Backend endpoint แลก SSO token เป็น local session (v1.4.0) |
+
+---
+
+`app/layout.tsx`:
 
 ```tsx
-<GovSsoProvider config={ssoConfig} theme={{ primaryColor: '#1E7D55' }}>
-  {children}
-</GovSsoProvider>
+import { GovSsoProvider } from 'gov-sso-login';
+import { ssoConfig } from '@/lib/sso-config';
+
+export default function RootLayout({ children }) {
+  return (
+    <GovSsoProvider config={ssoConfig} theme={{ primaryColor: '#1E7D55' }}>
+      {children}
+    </GovSsoProvider>
+  );
+}
 ```
 
-### Components / Hooks
-
-| API | ใช้เมื่อ |
-|-----|----------|
-| `SsoLoginButton` | ปุ่ม login สำเร็จรูป |
-| `SsoCallbackHandler` | หน้า `/auth/callback` |
-| `useGovSso()` | `{ login, getLoginUrl }` |
-| `useGovSsoCallback()` | จัดการ callback + state |
-| `GovSsoClient` | ใช้นอก React |
-
-### Backend (จำเป็น)
-
-`POST /auth/sso-callback` รับ `{ code }` → เรียก IAM `verify-code` ด้วย **x-api-key** (ห้ามใส่ใน browser)
-
-รายละเอียด: `gov-sso-login/set-up.md`
+> หลังจาก wrap แล้ว component ข้างในไม่ต้องส่ง `config` ซ้ำ
 
 ---
 
-## 5. ประกอบทั้งสามใน app เดียว
+## ขั้นตอนที่ 5 — หน้า Login
 
-```
-┌─────────────────────────────────────────┐
-│ globals.css  ← gov-token-css            │
-├─────────────────────────────────────────┤
-│ layout.tsx   ← GovSsoProvider           │
-│              ← SettingsProvider          │
-├─────────────────────────────────────────┤
-│ /login       ← SsoLoginButton            │
-│ /auth/callback ← SsoCallbackHandler      │
-├─────────────────────────────────────────┤
-│ (app)        ← UserHeader / StaffSidebar │
-│              ← user จาก session SSO      │
-└─────────────────────────────────────────┘
+### วิธี A: ใช้ Component สำเร็จรูป
+
+```tsx
+// app/login/page.tsx
+import { SsoLoginButton } from 'gov-sso-login';
+
+export default function LoginPage() {
+  return <SsoLoginButton label="เข้าสู่ระบบด้วย Gov Center" />;
+}
 ```
 
-**ลำดับแนะนำ**
+### วิธี B: ปรับ UI เอง
 
-1. ใส่ `gov-token-css` ใน globals.css
-2. Wrap `GovSsoProvider` + `SettingsProvider`
-3. ทำ login + callback
-4. หลัง login ส่ง `user` เข้า layout components
-5. ใช้ class `bg-brand-primary`, `typo-h1` ในหน้าที่เขียนเอง
+```tsx
+import { useGovSso } from 'gov-sso-login';
 
-**Demo ใน repo**
-
-```bash
-cd demo
-npm install
-npm run dev
+export default function LoginPage() {
+  const { login } = useGovSso();
+  return <button onClick={login} className="my-btn">เข้าสู่ระบบ</button>;
+}
 ```
-
-- `/tokens` — ดู swatch สีและ typo
-- `/layout/staff`, `/layout/user` — layout (กด "เข้าสู่ระบบ Demo" ก่อน)
-- `/sso` — SSO + demo login
-- `/guide` — สรุปสั้น
 
 ---
 
-## อ้างอิงเพิ่มเติม
+## Auto Login — ดึงค่าจาก SSO โดยตรง (v1.4.0)
 
-- `gov-token-css/README.md` — palette เต็ม
-- `gov-layout/README.md` — props ทุก component
-- `gov-sso-login/set-up.md` — env, NestJS, troubleshooting
-- `gov-sso-login/E-Service Residence API Integration Flow.md` — API บ้าน/ที่อยู่ (backend proxy)
+ใช้ `useAutoLogin` ในหน้า protected เพื่อให้ระบบตรวจสอบ session อัตโนมัติ
+
+### Flow เปรียบเทียบ
+
+| | Default | `checkSsoServer: true` |
+|---|---|---|
+| เช็ค backend session | ✅ | ✅ |
+| เช็ค SSO server โดยตรง | ❌ | ✅ |
+| แลก token โดยไม่ redirect | ❌ | ✅ (ถ้า SSO คืน token) |
+| ต้องการ CORS จาก IAM-GOV | ❌ | ✅ |
+| Fallback ถ้า CORS ไม่รองรับ | — | redirect ปกติ |
+
+### วิธีใช้ (SSO-first)
+
+```tsx
+// app/dashboard/page.tsx
+'use client';
+
+import { useAutoLogin } from 'gov-sso-login';
+import { useRouter } from 'next/navigation';
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { status, user } = useAutoLogin({
+    checkSsoServer: true,          // ← เช็ค SSO server โดยตรงก่อน
+    onAuthenticated: (user) => console.log('Welcome:', user.firstName),
+    onUnauthenticated: () => router.push('/login'), // ถ้า autoRedirect=false
+  });
+
+  if (status === 'checking')    return <p>กำลังตรวจสอบ...</p>;
+  if (status === 'redirecting') return <p>กำลังเปลี่ยนเส้นทาง...</p>;
+  if (status !== 'authenticated') return null;
+
+  return <div>สวัสดี {user?.firstName}</div>;
+}
+```
+
+### Flow รายละเอียด (checkSsoServer=true)
+
+```
+1. GET /auth/me (backend)
+   ├── ✅ มี session → authenticated ทันที
+   └── ❌ ไม่มี session
+        ↓
+2. GET ${iamAuthUrl}/auth/session?service=xxx (IAM-GOV, CORS)
+   ├── loggedIn=true + sessionToken
+   │     ↓
+   │   3. POST /auth/sso-session (backend) ← แลก token
+   │     ├── ✅ สำเร็จ → authenticated ไม่ต้อง redirect!
+   │     └── ❌ ล้มเหลว → redirectToLogin()
+   ├── loggedIn=true แต่ไม่มี token → redirectToLogin()
+   │   (SSO auto-redirect กลับพร้อม code ทันที)
+   └── loggedIn=false / CORS block → redirect หรือ unauthenticated
+```
+
+### วิธีใช้ (Default — redirect)
+
+```tsx
+const { status, user } = useAutoLogin({
+  // checkSsoServer: false (default)
+  onAuthenticated: (user) => router.push('/dashboard'),
+});
+```
+
+### วิธีใช้ (ไม่ auto-redirect — ให้ user กดปุ่มเอง)
+
+```tsx
+const { status, user, login } = useAutoLogin({
+  autoRedirect: false,
+  onAuthenticated: (user) => router.push('/dashboard'),
+});
+
+if (status === 'unauthenticated') {
+  return <button onClick={login}>เข้าสู่ระบบ</button>;
+}
+```
+
+---
+
+```tsx
+// app/auth/callback/page.tsx
+'use client';
+
+import { SsoCallbackHandler } from 'gov-sso-login';
+import { useRouter } from 'next/navigation';
+
+export default function CallbackPage() {
+  const router = useRouter();
+  return (
+    <SsoCallbackHandler
+      onSuccess={async (result) => {
+        const role = result.user?.role;
+        router.push(role === 'ADMIN' ? '/admin/dashboard' : '/home');
+      }}
+      onError={(err) => {
+        console.error(err);
+        router.push('/login');
+      }}
+    />
+  );
+}
+```
+
+> Library จัดการ CSRF state, retry (2 ครั้ง), และ error handling ให้อัตโนมัติ
+
+---
+
+## ขั้นตอนที่ 7 — Backend: รับ SSO Callback
+
+Backend ต้องมี endpoint 2 ตัว:
+
+| Endpoint | ใช้งาน |
+|---|---|
+| `POST /auth/sso-callback` | รับ `code` จาก IAM-GOV callback (flow ปกติ) |
+| `POST /auth/sso-session` | รับ `sessionToken` จาก SSO-first flow (v1.4.0) |
+
+### `POST /auth/sso-callback` ที่:
+1. รับ `{ code }` จาก frontend
+2. ส่ง code ไป IAM-GOV เพื่อ verify
+3. Upsert user และ residence snapshot ลงฐานข้อมูล
+4. สร้าง JWT session คืนกลับ
+
+```typescript
+// auth.controller.ts
+@Post('sso-callback')
+async ssoCallback(@Body() body: { code: string }, @Res({ passthrough: true }) res: Response) {
+  const user = await this.authService.handleSsoCallback(body.code);
+  return this.authService.login(user, res);
+}
+
+// auth.service.ts
+async handleSsoCallback(code: string) {
+  const trimmedCode = code.trim(); // ← trim เสมอ
+  const response = await fetch(`${process.env.IAM_API_URL}/e-services/sso/verify-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.E_SERVICE_API_KEY,
+    },
+    body: JSON.stringify({ code: trimmedCode }),
+  });
+
+  if (!response.ok) throw new Error(`IAM verify failed: ${response.status}`);
+  const data = await response.json();
+
+  await this.upsertIamUser(data.user);
+  for (const item of data.residences ?? []) {
+    await this.upsertResidenceSnapshot(item.addressSnapshot);
+    await this.upsertUserResidenceLink({
+      iamUserId: data.user.id,
+      iamResidenceId: item.addressSnapshot.residenceId,
+      iamMembershipId: item.membershipId,
+      memberRole: item.role,
+      memberStatus: item.status,
+      verifiedAt: item.verifiedAt,
+    });
+  }
+
+  return this.upsertUser(data.user);
+}
+```
+
+### `POST /auth/sso-session` (v1.4.0 — SSO-first flow)
+
+Endpoint นี้ใช้เมื่อ `checkSsoServer: true` และ IAM-GOV คืน `sessionToken` โดยตรง
+
+```typescript
+// auth.controller.ts
+@Post('sso-session')
+async ssoSession(
+  @Body() body: { sessionToken: string },
+  @Res({ passthrough: true }) res: Response,
+) {
+  const user = await this.authService.handleSsoSession(body.sessionToken);
+  return this.authService.login(user, res);
+}
+
+// auth.service.ts
+async handleSsoSession(sessionToken: string) {
+  const response = await fetch(`${process.env.IAM_API_URL}/e-services/sso/verify-session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': process.env.E_SERVICE_API_KEY,
+    },
+    body: JSON.stringify({ sessionToken }),
+  });
+
+  if (!response.ok) throw new Error(`IAM verify-session failed: ${response.status}`);
+  const data = await response.json();
+  return this.upsertUser(data.user);
+}
+```
+
+> **หมายเหตุ:** endpoint `POST /e-services/sso/verify-session` บน IAM-GOV ต้องรองรับก่อน — ถ้ายังไม่มีให้ใช้ flow redirect ปกติก่อน
+
+---
+
+## ขั้นตอนที่ 8 — ตรวจสอบข้อมูล Residence หลัง Login
+
+ข้อมูลบ้านของ user จะมาพร้อม verify-code response ในฟิลด์ `residences`
+
+```typescript
+// ตรวจ status ก่อนใช้งานในธุรกรรมจริง
+const canUseForOfficialTransaction =
+  item.status === 'VERIFIED' && item.residence.status === 'VERIFIED';
+
+const isPending =
+  item.status === 'PENDING' || item.residence.status === 'PENDING_REVIEW';
+```
+
+ต้องตรวจ **ทั้งสองค่า** แยกกัน — membership status และ residence status
+
+### Scopes ที่ต้องขอไว้
+
+| Scope | เปิดใช้ |
+|---|---|
+| `residence:read` | รับ `residences` ใน verify-code + อ่านรายละเอียดบ้าน |
+| `residence:members:read` | ดูสมาชิกในบ้าน |
+| `residence:claim:create` | ยื่นเพิ่มบ้านใหม่ + upload เอกสาร |
+| `residence:claim:read` | ติดตามสถานะคำขอ |
+
+---
+
+## ขั้นตอนที่ 9 — โครงสร้าง DB ที่ต้องมี
+
+### iam_users
+
+```sql
+create table iam_users (
+  iam_user_id   text primary key,
+  email         text,
+  name          text,
+  avatar_url    text,
+  system_role   text,
+  last_sso_at   timestamptz not null default now(),
+  raw_profile   jsonb
+);
+```
+
+### iam_residence_snapshots
+
+```sql
+create table iam_residence_snapshots (
+  iam_residence_id    text primary key,
+  residence_code      text,
+  formatted_address   text,
+  house_no text, moo text, soi text, road text, postal_code text,
+  village_name text, building_name text, floor text, room_no text,
+  province_id int,    province_name_th text,
+  district_id int,    district_name_th text,
+  subdistrict_id int, subdistrict_name_th text,
+  municipality_id text, municipality_name text,
+  latitude double precision, longitude double precision,
+  location_accuracy text,
+  residence_status  text,
+  approved_at       timestamptz,
+  raw_snapshot      jsonb,
+  synced_at         timestamptz not null default now()
+);
+```
+
+### iam_user_residences
+
+```sql
+create table iam_user_residences (
+  iam_user_id       text not null,
+  iam_residence_id  text not null,
+  iam_membership_id text not null,
+  member_role       text,
+  member_status     text,
+  verified_at       timestamptz,
+  synced_at         timestamptz not null default now(),
+  primary key (iam_user_id, iam_residence_id)
+);
+```
+
+---
+
+## ขั้นตอนที่ 10 — Residence Search & Select UI
+
+ถ้า e-service ต้องให้ user เลือกบ้านใน UI ของตัวเอง ให้ทำ proxy endpoint ฝั่ง backend ก่อน แล้ว frontend เรียกผ่าน backend เท่านั้น
+
+### Proxy Endpoints (NestJS → IAM-GOV)
+
+```typescript
+@Injectable()
+export class IamGovResidenceClient {
+  private readonly apiUrl = this.config.getOrThrow<string>('IAM_API_URL');
+  private readonly apiKey = this.config.getOrThrow<string>('E_SERVICE_API_KEY');
+
+  constructor(private readonly config: ConfigService) {}
+
+  async searchResidences(params: Record<string, string>) {
+    const qs = new URLSearchParams(params).toString();
+    const res = await fetch(`${this.apiUrl}/e-services/residences/search?${qs}`, {
+      headers: { 'x-api-key': this.apiKey },
+    });
+    if (!res.ok) throw new Error(`IAM search failed: ${res.status}`);
+    return res.json();
+  }
+}
+
+@Controller('api/residences')
+export class ResidenceProxyController {
+  constructor(private readonly iamResidence: IamGovResidenceClient) {}
+
+  @Get('search')
+  search(@Query() query: SearchResidenceDto) {
+    return this.iamResidence.searchResidences(query);
+  }
+}
+```
+
+### Endpoint ที่ต้องทำ
+
+| E-Service Backend | IAM-GOV Endpoint | Scope ที่ต้องการ |
+|---|---|---|
+| `GET /api/residences/search` | `GET /e-services/residences/search` | — |
+| `GET /api/residences/:id` | `GET /e-services/residences/:id` | `residence:read` |
+| `GET /api/residences/:id/members` | `GET /e-services/residences/:id/members` | `residence:members:read` |
+| `POST /api/residence-claims` | `POST /e-services/residence-claims` | `residence:claim:create` |
+| `POST /api/residence-claims/:id/evidence` | `POST /e-services/residence-claims/:id/evidence` | `residence:claim:create` |
+| `GET /api/residence-claims/:id` | `GET /e-services/residence-claims/:id` | `residence:claim:read` |
+
+### Search Query Parameters
+
+| Query | ความหมาย |
+|---|---|
+| `q` | คำค้น เช่น บ้านเลขที่, ถนน, รหัสไปรษณีย์ |
+| `municipalityId` | จำกัดเทศบาล |
+| `provinceId / districtId / subdistrictId` | จำกัดพื้นที่ |
+| `lat / lng / radiusMeters` | ค้นหาจากพิกัด |
+| `limit` | จำนวนผลลัพธ์ |
+
+Best practice:
+- ใช้ debounce **300–500ms** ระหว่าง user พิมพ์
+- อย่า search ถ้าคำน้อยกว่า **3 ตัวอักษร** (ยกเว้นมี lat/lng)
+- ถ้า user ปักหมุด map ให้ search ด้วย lat/lng ก่อน แล้วค่อยสร้าง claim ถ้าไม่เจอ
+
+### State Machine สำหรับ UI
+
+```
+Searching → (พบบ้าน) → SelectedResidence → [จบ]
+Searching → (ไม่พบ) → DraftClaim → ClaimSubmitted → WaitingReview
+                                                      ↓
+                                         Approved / Merged → SelectedResidence
+                                         Rejected → DraftClaim (แก้ไขและยื่นใหม่)
+```
+
+```typescript
+// TypeScript state type
+type ResidencePickerState =
+  | { step: 'searching' }
+  | { step: 'selected'; residenceId: string }
+  | { step: 'claim-draft' }
+  | { step: 'claim-submitted'; claimId: string };
+```
+
+---
+
+## ขั้นตอนที่ 11 — Claim Flow (เมื่อ User ไม่พบบ้าน)
+
+เลือกได้สองแนวทาง:
+
+### แนวทาง A: Central Flow (ให้ IAM-GOV สร้าง UI ให้)
+
+1. Backend สร้าง Intent:
+
+```http
+POST {IAM_API_URL}/e-services/residence-claim-intents
+Content-Type: application/json
+x-api-key: <E_SERVICE_API_KEY>
+
+{
+  "expectedIamUserId": "iam-user-id",
+  "returnUrl": "https://my-service.govcenter.co/residence/callback",
+  "state": "signed-random-state",
+  "externalRequestId": "my-service-request-0001"
+}
+```
+
+2. Frontend redirect user ไปที่ `launchUrl` จาก response
+3. IAM-GOV redirect กลับมาพร้อม `?code=<resultCode>&state=<state>`
+4. Backend verify `state` ก่อน แล้ว verify `resultCode`:
+
+```http
+POST {IAM_API_URL}/e-services/residence-claim-results/verify
+x-api-key: <E_SERVICE_API_KEY>
+
+{ "resultCode": "one-time-result-code" }
+```
+
+### แนวทาง B: Direct UI Flow (สร้าง UI เอง)
+
+**1. Submit Claim:**
+
+```http
+POST /e-services/residence-claims
+x-api-key: <e-service-api-key>
+Content-Type: application/json
+
+{
+  "externalRequestId": "my-service-req-001",
+  "submittedByUserId": "iam-user-id-from-sso",
+  "municipalityId": "municipality-id",
+  "houseNo": "99/1",
+  "moo": "4",
+  "provinceId": 46,
+  "districtId": 4601,
+  "subdistrictId": 460101,
+  "latitude": 16.4321,
+  "longitude": 103.5012,
+  "locationAccuracy": "EXACT"
+}
+```
+
+> `submittedByUserId` ต้องมาจาก session — ห้ามรับจาก browser
+
+**2. Upload Evidence** (หลังได้ `claimId`):
+
+```http
+POST /e-services/residence-claims/:claimId/evidence
+x-api-key: <e-service-api-key>
+Content-Type: multipart/form-data
+
+file: <PDF/JPEG/PNG/WEBP, max 10MB>
+```
+
+**3. Poll สถานะ:**
+
+```http
+GET /e-services/residence-claims/:claimId
+x-api-key: <e-service-api-key>
+```
+
+### Claim Status → UI Text
+
+| Status | แสดงผล |
+|---|---|
+| `SUBMITTED` | รอเจ้าหน้าที่ตรวจสอบ |
+| `DUPLICATE_CANDIDATE` | พบข้อมูลใกล้เคียง รอตรวจสอบ |
+| `NEEDS_REVIEW` | ต้องตรวจสอบเพิ่มเติม |
+| `APPROVED` | อนุมัติแล้ว ✓ |
+| `MERGED` | รวมกับบ้านที่มีอยู่แล้ว |
+| `REJECTED` | ไม่อนุมัติ (แสดง `reviewNote`) |
+
+> เมื่อ `APPROVED` หรือ `MERGED` ให้บันทึก `matchedResidenceId` เป็น residence ของ user
+
+---
+
+## SSO Flow ภาพรวม
+
+### Flow A — Standard (redirect)
+
+```
+[Frontend]          [IAM-GOV]           [Backend]
+    │                   │                   │
+    │─── 1. redirect ──▶│                   │
+    │    + state param  │                   │
+    │                   │ 2. user login     │
+    │◀── 3. ?code=XX ───│                   │
+    │    &state=YY      │                   │
+    │                   │                   │
+    │─── 4. POST {code} ────────────────────▶│
+    │    (verify state ✅)                   │
+    │                                        │─── 5. POST verify-code ──▶ IAM-GOV
+    │                                        │◀── 6. user + residences ───
+    │                                        │─── 7. upsert DB
+    │◀── 8. JWT session + user ─────────────│
+    │                                        │
+✅ Login สำเร็จ → redirect ตาม role
+```
+
+### Flow B — SSO-first (checkSsoServer=true, v1.4.0)
+
+```
+[Frontend]          [IAM-GOV]           [Backend]
+    │                   │                   │
+    │─── 1. GET /auth/me ───────────────────▶│  ← เช็ค backend session
+    │◀── 401 (ไม่มี session) ───────────────│
+    │                   │                   │
+    │─── 2. GET /auth/session?service=xxx ─▶│  ← เช็ค SSO session โดยตรง (CORS)
+    │◀── { loggedIn:true, sessionToken } ───│
+    │                   │                   │
+    │─── 3. POST /auth/sso-session ─────────────────────────────▶│
+    │       { sessionToken }                │                     │
+    │                                       │  ── 4. verify-session ──▶ IAM-GOV
+    │                                       │  ◀── user ───────────────
+    │                                       │  ── 5. upsert DB
+    │◀── JWT session + user ────────────────────────────────────│
+    │                   │                   │
+✅ Login สำเร็จ — ไม่มี redirect เลย!
+```
+
+---
+
+## Security Checklist
+
+### ✅ ต้องทำ
+
+- เก็บ `E_SERVICE_API_KEY` บน backend เท่านั้น
+- Trim SSO code ก่อนส่งเสมอ
+- Verify code ครั้งเดียว (one-time use)
+- สร้าง e-service session เองหลัง verify สำเร็จ — ไม่ใช้ IAM refresh token
+- ตรวจทั้ง membership status และ residence status ก่อนทำธุรกรรม
+- Verify `state` ใน central claim callback ทุกครั้ง
+- Search ซ้ำก่อน submit claim เพื่อป้องกันข้อมูลซ้ำ
+- Log IAM user id, claim id, request id — ห้าม log secret
+
+### ❌ ห้ามทำ
+
+- ห้ามใส่ `x-api-key` ใน `NEXT_PUBLIC_*` / `VITE_*`
+- ห้ามให้ browser เรียก IAM-GOV endpoints โดยตรง
+- ห้าม assume `residences.length > 0`
+- ห้ามใช้ status `PENDING` เป็นการยืนยันเจ้าของบ้าน
+- ห้ามเก็บ IAM payload ทั้งก้อนใน browser cookie
+- ห้ามให้ e-service สร้าง canonical residence โดยตรง — ต้องสร้างเป็น claim
+
+---
+
+## Theming (ปรับสีได้ 3 วิธี)
+
+**วิธี 1: ผ่าน Provider** (ทั่วทั้ง app)
+
+```tsx
+<GovSsoProvider config={ssoConfig} theme={{
+  primaryColor: '#0066CC',
+  primaryHoverColor: '#004C99',
+  errorColor: '#dc2626',
+  textColor: '#111827',
+  backgroundColor: '#f9fafb',
+}}>
+```
+
+**วิธี 2: ผ่าน Props** (เฉพาะ component นั้น)
+
+```tsx
+<SsoLoginButton theme={{ primaryColor: '#7C3AED' }} />
+```
+
+**วิธี 3: className** (CSS เอง)
+
+```tsx
+<SsoLoginButton className="my-custom-btn" />
+```
+
+| Property | Default | คำอธิบาย |
+|---|---|---|
+| `primaryColor` | `#1E7D55` | สีหลัก (ปุ่ม, loading, success) |
+| `primaryHoverColor` | `#256B48` | สี hover ของปุ่ม |
+| `errorColor` | `#ef4444` | สี error |
+| `textColor` | `#1e293b` | สีข้อความหลัก |
+| `borderRadius` | `0.5rem` | ขอบมน |
+
+---
+
+## Error Handling
+
+```typescript
+import { GovSsoError } from 'gov-sso-login';
+
+try {
+  const result = await client.handleCallback(code);
+} catch (err) {
+  if (err instanceof GovSsoError) {
+    console.log(err.code);       // 'NETWORK_ERROR' | 'SERVER_ERROR' | ...
+    console.log(err.statusCode); // 500, 503, etc.
+    console.log(err.message);    // ข้อความภาษาไทย
+  }
+}
+```
+
+| Error Code | เกิดเมื่อ |
+|---|---|
+| `NETWORK_ERROR` | เชื่อมต่อ server ไม่ได้ |
+| `SERVER_ERROR` | Server ตอบ 500/502/503/504 |
+| `INVALID_RESPONSE` | Server ตอบ JSON ไม่ถูกต้อง |
+| `BROWSER_ONLY` | เรียกใน server-side context |
+| `UNKNOWN_ERROR` | Error ที่ไม่ทราบสาเหตุ |
+
+> Library มี auto-retry 2 ครั้งสำหรับ 5xx errors (exponential backoff 1s → 2s) — ไม่ต้อง config เพิ่ม
+
+---
+
+## Error Reference (IAM-GOV)
+
+| Error | สาเหตุ | วิธีแก้ |
+|---|---|---|
+| `403 Invalid SSO code` | หา code ไม่เจอ | ตรวจ env, trim code, generate ใหม่ |
+| `403 SSO code does not belong to this service` | API key เป็นของ service อื่น | ตรวจ `E_SERVICE_CODE` ตรงกับ `API_KEY` ไหม |
+| `403 SSO code has already been used` | ใช้ code ซ้ำ | Generate code ใหม่ทุกครั้ง |
+| `residences: []` | ไม่มี scope / ไม่มี linked residence | ตรวจ scope และ membership ใน IAM-GOV |
+| `serviceAccess: []` | ไม่มี e_service_access row | IAM-GOV Admin → Manage E-Services → Assign |
+
+---
+
+## Troubleshooting (Library)
+
+| ปัญหา | สาเหตุ | แก้ไข |
+|---|---|---|
+| `Module not found: gov-sso-login` | ยังไม่ได้ติดตั้ง | `npm install gov-sso-login` |
+| SSO redirect แล้วไม่กลับมา | `callbackUrl` ไม่ตรง | ตรวจ `NEXT_PUBLIC_FRONTEND_URL` |
+| Build error ใน Next.js | ไม่ได้ transpile | เพิ่ม `transpilePackages` ใน `next.config.ts` |
+| "การตรวจสอบความปลอดภัยล้มเหลว" | CSRF state ไม่ตรง | ลอง login ใหม่ (อาจใช้ link เก่า) |
+| `useGovSso: ต้องส่ง config` | ไม่มี Provider | Wrap ด้วย `<GovSsoProvider>` |
+| Cookie ไม่ถูก set | domain ไม่ตรง | ตรวจ `FRONTEND_URL` ใน backend `.env` |
+| `checkSsoServer: true` ไม่ทำงาน | IAM-GOV ยังไม่รองรับ CORS | Library จะ fallback เป็น redirect ปกติ |
+| `POST /auth/sso-session` 404 | ยังไม่ได้ implement | ต้องสร้าง endpoint ตามขั้นตอนที่ 7 |
+
+---
+
+## Implementation Checklist (ทำตามลำดับ)
+
+- [ ] ติดตั้ง `gov-sso-login` และตั้งค่า `next.config.ts`
+- [ ] เพิ่ม env vars: frontend (4 ตัว) + backend (3 ตัว)
+- [ ] สร้าง `lib/sso-config.ts`
+- [ ] Wrap app ด้วย `GovSsoProvider` ใน `layout.tsx`
+- [ ] สร้างหน้า login พร้อม `SsoLoginButton` หรือ `useGovSso`
+- [ ] สร้างหน้า `/auth/callback` พร้อม `SsoCallbackHandler` หรือ `useGovSsoCallback`
+- [ ] Implement `POST /auth/sso-callback` บน NestJS backend
+- [ ] (ถ้าต้องการ SSO-first) Implement `POST /auth/sso-session` บน NestJS backend
+- [ ] Implement `upsertIamUser`, `upsertResidenceSnapshot`, `upsertUserResidenceLink`
+- [ ] สร้าง DB tables: `iam_users`, `iam_residence_snapshots`, `iam_user_residences`
+- [ ] (ถ้าต้องการ) ทำ proxy endpoints สำหรับ Residence Search/Read
+- [ ] (ถ้าต้องการ) ทำ UI แจ้งเพิ่มบ้าน + Claim API + upload evidence
+- [ ] เขียน test: missing code, invalid code, empty residences, pending, verified, no API key leak
+- [ ] Manual test ตาม script ด้านล่าง
+
+---
+
+## Manual Test Script
+
+```http
+# 1. Generate SSO code (ใช้ IAM access token)
+POST {IAM_API_URL}/e-services/sso/generate-code
+Authorization: Bearer <IAM_ACCESS_TOKEN>
+Content-Type: application/json
+
+{ "eServiceCode": "your-service-code" }
+
+# 2. Verify code (จาก backend เท่านั้น)
+POST {IAM_API_URL}/e-services/sso/verify-code
+Content-Type: application/json
+x-api-key: <E_SERVICE_API_KEY>
+
+{ "code": "<code-from-step-1>" }
+
+# ตรวจ response:
+# ✅ user.id มีค่า
+# ✅ user.memberships เป็น array
+# ✅ residences เป็น array (ถ้า user มี linked residence จะมี addressSnapshot)
+
+# 3. Verify code เดิมซ้ำ → ต้องได้ error
+# ✅ "SSO code has already been used"
+```
+
+Library มี auto-retry สำหรับ server errors: retry 2 ครั้ง (รวม 3 ครั้ง) ด้วย exponential backoff (1s → 2s) สำหรับ HTTP 500/502/503/504 และ network error โดยไม่ retry 400/401/403
+
+---
+
+### Backend-Setup-(NestJS)
+
+Backend ต้องมี endpoint `POST /auth/sso-callback` ที่รับ `{ code }` จาก frontend แล้วส่งต่อไป IAM-GOV:
+
+```typescript
+// auth.controller.ts
+@Post('sso-callback')
+async ssoCallback(
+  @Body() body: { code: string },
+  @Res({ passthrough: true }) res: Response,
+) {
+  const user = await this.authService.handleSsoCallback(body.code);
+  return this.authService.login(user, res);
+}
+
+// auth.service.ts
+async handleSsoCallback(code: string) {
+  const response = await fetch(`${IAM_GOV_API_URL}/e-services/sso/verify-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': E_SERVICE_API_KEY,
+    },
+    body: JSON.stringify({ code }),
+  });
+  const data = await response.json();
+  return this.upsertUser(data.user);
+}
+```
+
+---
+
+## Residence-API-Integration
+
+### ภาพรวม
+
+E-service สามารถทำ flow ครบผ่าน `x-api-key` ได้: search/read residence, submit residence claim, upload evidence, list evidence และ read claim status
+
+> **สำคัญ:** e-service frontend ต้องเรียก backend ของตัวเองก่อนเสมอ ห้ามถือ `x-api-key` ใน browser
+
+```
+User → E-Service Frontend → E-Service Backend → (x-api-key) → IAM-GOV API → Residence Registry
+```
+
+#### Required Scopes
+
+| Use case | Required scopes |
+|---|---|
+| ค้นหาบ้าน | `residence:search` |
+| อ่านรายละเอียดบ้าน | `residence:read` |
+| ดูสมาชิกบ้าน | `residence:members:read` |
+| ยื่นเพิ่มบ้าน + upload เอกสาร | `residence:claim:create` |
+| ดูสถานะคำขอ + list evidence | `residence:claim:read` |
+
+---
+
+### API-Endpoints
+
+#### Search Residence
+
+```http
+GET /e-services/residences/search?q=99/1&limit=20
+x-api-key: <e-service-api-key>
+```
+
+| Query | ความหมาย |
+|---|---|
+| `q` | คำค้น เช่น บ้านเลขที่, หมู่บ้าน, อาคาร, ถนน, รหัสไปรษณีย์ |
+| `municipalityId` | จำกัดเทศบาล |
+| `provinceId` / `districtId` / `subdistrictId` | จำกัดพื้นที่ |
+| `lat` / `lng` / `radiusMeters` | ค้นหาจากพิกัด |
+| `limit` | จำนวนผลลัพธ์ |
+
+```json
+// Response
+[
+  {
+    "id": "cmp121bzi000iualqo8dwdj1r",
+    "residenceCode": "500100-000001",
+    "title": "บ้านเลขที่ 99/** บ้านหลักเมือง เทศบาลหลักเมือง",
+    "maskedAddress": "บ้านเลขที่ 99/** หมู่ 4 ต.หลักเมือง อ.เมือง จ.กาฬสินธุ์",
+    "latitude": 16.432,
+    "longitude": 103.501,
+    "locationAccuracy": "EXACT",
+    "municipality": { "id": "municipality-id", "name": "หลักเมือง" }
+  }
+]
+```
+
+#### Read Residence Detail
+
+```http
+GET /e-services/residences/:id
+x-api-key: <e-service-api-key>
+```
+
+> ต้องมี scope `residence:read` — ไม่ควรดึง detail ทุกครั้งตอน typing search ให้ใช้ search endpoint ก่อน
+
+#### Read Verified Residence Members
+
+```http
+GET /e-services/residences/:id/members
+x-api-key: <e-service-api-key>
+```
+
+> ต้องมี scope `residence:members:read` — คืนเฉพาะ member ที่ `VERIFIED` ใช้เฉพาะ service ที่ต้องรู้ว่าใครอยู่บ้าน
+
+---
+
+### Residence-Claim-Flow
+
+เมื่อ user ไม่พบบ้านในระบบ:
+
+#### 1. Submit Residence Claim
+
+```http
+POST /e-services/residence-claims
+x-api-key: <e-service-api-key>
+Content-Type: application/json
+```
+
+```json
+// Request
+{
+  "externalRequestId": "pickup-request-20260514-0001",
+  "submittedByUserId": "iam-user-id-from-sso-verify",
+  "municipalityId": "municipality-id",
+  "houseNo": "99/1",
+  "moo": "4",
+  "villageName": "บ้านหลักเมือง",
+  "provinceId": 46,
+  "districtId": 4601,
+  "subdistrictId": 460101,
+  "postalCode": "46000",
+  "latitude": 16.4321,
+  "longitude": 103.5012,
+  "locationAccuracy": "EXACT"
+}
+```
+
+```json
+// Response
+{
+  "id": "claim-id",
+  "status": "SUBMITTED",
+  "type": "CREATE_RESIDENCE",
+  "municipalityId": "municipality-id",
+  "submittedByUserId": "iam-user-id-from-sso-verify",
+  "submittedByServiceId": "e-service-id",
+  "matchedResidenceId": null,
+  "createdAt": "2026-05-14T09:00:00.000Z"
+}
+```
+
+#### 2. Upload Claim Evidence
+
+```http
+POST /e-services/residence-claims/:claimId/evidence
+x-api-key: <e-service-api-key>
+Content-Type: multipart/form-data
+```
+
+| Field | Required | Description |
+|---|:---:|---|
+| `file` | ✅ | PDF, JPEG, PNG, WEBP, max 10MB |
+
+> Upload ได้เฉพาะ claim ที่ตัวเองสร้าง และ claim ต้องอยู่ใน status `SUBMITTED`, `DUPLICATE_CANDIDATE`, หรือ `NEEDS_REVIEW`
+
+#### 3. Get Claim Status
+
+```http
+GET /e-services/residence-claims/:claimId
+x-api-key: <e-service-api-key>
+```
+
+```json
+// Response
+{
+  "id": "claim-id",
+  "status": "SUBMITTED",
+  "matchedResidenceId": null,
+  "reviewNote": null,
+  "reviewedAt": null,
+  "createdAt": "2026-05-14T09:00:00.000Z",
+  "updatedAt": "2026-05-14T09:00:00.000Z"
+}
+```
+
+#### 4. List Claim Evidence
+
+```http
+GET /e-services/residence-claims/:claimId/evidence
+x-api-key: <e-service-api-key>
+```
+
+---
+
+### Claim-Status
+
+| IAM Status | UI Text |
+|---|---|
+| `SUBMITTED` | รอเจ้าหน้าที่ตรวจสอบ |
+| `DUPLICATE_CANDIDATE` | พบข้อมูลใกล้เคียง รอตรวจสอบความซ้ำ |
+| `NEEDS_REVIEW` | ต้องตรวจสอบเพิ่มเติม |
+| `APPROVED` | อนุมัติแล้ว |
+| `MERGED` | รวมกับบ้านที่มีอยู่แล้ว |
+| `REJECTED` | ไม่อนุมัติ |
+
+เมื่อ admin approve: `matchedResidenceId` จะมีค่า ให้ e-service บันทึก `matchedResidenceId` เป็น `selectedResidenceId` ในระบบตัวเอง
+
+---
+
+### Frontend-(NextJS)
+
+#### ResidenceSearchBox
+
+- ใช้ debounce 300–500ms ก่อนยิง search
+- search ผ่าน e-service backend เช่น `/api/residences/search`
+- อย่า search ถ้าคำค้นสั้นกว่า 3 ตัวอักษร (ยกเว้นมี lat/lng)
+- เมื่อ user เลือกบ้าน ให้บันทึก `residenceId` กับ transaction ของ e-service
+- ถ้าไม่เจอ ให้เปิด form "แจ้งเพิ่มบ้าน"
+
+```ts
+// State ที่แนะนำ
+type ResidencePickerState =
+  | { step: 'searching' }
+  | { step: 'selected'; residenceId: string }
+  | { step: 'claim-draft' }
+  | { step: 'claim-submitted'; claimId: string };
+```
+
+#### File Upload
+
+```tsx
+<input
+  type="file"
+  accept=".pdf,image/jpeg,image/png,image/webp"
+  // จำกัด 10MB ก่อน upload
+/>
+```
+
+Upload หลังได้ `claimId` เท่านั้น และแสดงรายการไฟล์ที่ upload สำเร็จ
+
+---
+
+### Backend-(NestJS)
+
+#### IamGovResidenceClient
+
+```ts
+@Injectable()
+export class IamGovResidenceClient {
+  private readonly apiUrl = this.config.getOrThrow<string>('IAM_API_URL');
+  private readonly apiKey = this.config.getOrThrow<string>('IAM_API_KEY');
+
+  constructor(private readonly config: ConfigService) {}
+
+  async searchResidences(params: Record<string, unknown>) {
+    const response = await fetch(
+      `${this.apiUrl}/e-services/residences/search?${new URLSearchParams(params as Record<string, string>)}`,
+      { headers: { 'x-api-key': this.apiKey } },
+    );
+    if (!response.ok) throw new Error(`IAM search failed: ${response.status}`);
+    return response.json();
+  }
+}
+```
+
+#### Proxy Endpoints
+
+| E-Service Backend | IAM-GOV Endpoint |
+|---|---|
+| `GET /api/residences/search` | `GET /e-services/residences/search` |
+| `GET /api/residences/:id` | `GET /e-services/residences/:id` |
+| `POST /api/residence-claims` | `POST /e-services/residence-claims` |
+| `POST /api/residence-claims/:id/evidence` | `POST /e-services/residence-claims/:id/evidence` |
+| `GET /api/residence-claims/:id` | `GET /e-services/residence-claims/:id` |
+
+```ts
+@Controller('api/residences')
+export class ResidenceProxyController {
+  constructor(private readonly iamResidence: IamGovResidenceClient) {}
+
+  @Get('search')
+  search(@Query() query: SearchResidenceDto) {
+    return this.iamResidence.searchResidences(query);
+  }
+}
+```
+
+> ใส่ auth guard ของ e-service ก่อนให้ user เรียก proxy และ map user id จาก session/SSO เป็น `submittedByUserId` ห้ามรับจาก browser ตรงๆ
+
+#### Claim Tracking Table (แนะนำ)
+
+| Field | ความหมาย |
+|---|---|
+| `iamClaimId` | claim id จาก IAM-GOV |
+| `iamUserId` | user id จาก SSO |
+| `externalRequestId` | id ธุรกรรมของ e-service |
+| `statusSnapshot` | status ล่าสุดที่ดึงจาก IAM-GOV |
+| `selectedResidenceId` | residence id หลัง approved/merged |
+
+---
+
+### Best-Practices
+
+- อย่าให้ frontend ถือ `x-api-key` เด็ดขาด
+- ใช้ debounce 300–500ms ตอน search
+- ถ้า user ปักหมุด map ให้ search ด้วย `lat/lng/radiusMeters` ก่อนสร้างบ้านใหม่
+- ก่อน submit claim ให้ backend search ซ้ำอีกครั้งด้วย address + coordinates เพื่อกันข้อมูลซ้ำ
+- ส่ง `externalRequestId` เพื่อ trace กลับไปหา record ฝั่ง e-service ได้
+- เก็บ `claimId` ใน database ของ e-service เพื่อแสดงสถานะย้อนหลัง
+- upload เอกสารหลังสร้าง claim สำเร็จเท่านั้น
+- อย่าให้ e-service สร้าง canonical residence โดยตรง ให้สร้างเป็น claim แล้วรอ admin ตรวจ
+- validate mime type และ file size ซ้ำที่ backend เสมอ
+- log `claimId`, `residenceId`, `externalRequestId` เพื่อ trace incident
+
+---
+
+## API-Reference
+
+### `GovSsoConfig`
+
+| Property | Type | Required | Description |
+|---|---|:---:|---|
+| `iamAuthUrl` | `string` | ✅ | IAM-GOV auth frontend URL |
+| `serviceCode` | `string` | ✅ | Service code registered with IAM-GOV |
+| `apiBaseUrl` | `string` | ✅ | Backend API URL |
+| `callbackUrl` | `string` | ✅ | Frontend callback URL |
+| `checkSessionPath` | `string` | ❌ | Backend session check path (default: `/auth/me`) |
+| `ssoCallbackPath` | `string` | ❌ | Backend callback path (default: `/auth/sso-callback`) |
+| `ssoSessionCheckPath` | `string` | ❌ | IAM-GOV SSO session check path (default: `/auth/session`) — v1.4.0 |
+| `ssoExchangePath` | `string` | ❌ | Backend SSO token exchange path (default: `/auth/sso-session`) — v1.4.0 |
+
+### Exports
+
+| Export | Description |
+|---|---|
+| `GovSsoClient` | Core client class |
+| `useGovSso(config?)` | Hook สำหรับ login initiation |
+| `useGovSsoCallback(options?)` | Hook สำหรับ callback handling |
+| `useAutoLogin(options?)` | Hook ตรวจสอบ session อัตโนมัติ + SSO-first (v1.4.0) |
+| `SsoLoginButton` | Ready-made login button component |
+| `SsoCallbackHandler` | Ready-made callback page component |
+| `GovSsoProvider` | Context provider |
+| `GovSsoError` | Error class พร้อม error codes |
+
+---
+
+## License
+
+MIT

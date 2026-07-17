@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { GlobalSidebar } from './GlobalSidebar';
 
-const HIDE_NAV = ['/login', '/auth/callback'];
+const HIDE_NAV = ['/', '/login', '/auth/callback'];
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
