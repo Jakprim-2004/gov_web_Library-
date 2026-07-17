@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useDemoAuth } from '@/lib/demo-auth';
 import { ReadmeViewer } from '@/components/ReadmeViewer';
+import { PageHeader } from '@/components/PageHeader';
 
 export default function SsoShowcasePage() {
   const { user, ssoPayload, isLoggedIn } = useDemoAuth();
@@ -12,83 +13,82 @@ export default function SsoShowcasePage() {
   const residences: any[] = normalizedPayload?.residences || [];
 
   return (
-    <main className="mx-auto max-w-5xl px-4 sm:px-6 py-8 md:py-10 animate-fade-in-up">
-      <header className="card-section p-6 md:p-8 mb-8">
-        <p className="text-xs uppercase tracking-[0.18em] text-[#1f6f5c]">SSO Showcase</p>
-        <h1 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">แพ็กเกจล็อกอินภาครัฐ</h1>
-        <p className="mt-3 text-sm text-[#5b6b80] leading-relaxed">
-          หน้านี้ใช้ข้อมูลที่ได้จาก IAM-GOV API หลังล็อกอินสำเร็จ เพื่อทดสอบโครงสร้างผู้ใช้ สิทธิ์การเข้าถึง และข้อมูลดิบสำหรับดีบัก
-        </p>
-      </header>
-
-      {isLoggedIn && ssoPayload ? (
-        <div className="space-y-6">
-          <section className="card-section p-6">
-            <h2 className="text-lg font-bold text-[#060d26] mb-4">ข้อมูลผู้ใช้</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <DataField label="ชื่อ" value={ssoUser.name} />
-              <DataField label="อีเมล" value={ssoUser.email} />
-              <DataField label="รหัสผู้ใช้" value={ssoUser.id} mono />
-              <DataField label="System Role" value={ssoUser.systemRole} />
-            </div>
-          </section>
-
-          <section className="card-section p-6">
-            <h2 className="text-lg font-bold text-[#060d26] mb-4">สิทธิ์หน่วยงาน ({memberships.length})</h2>
-            {memberships.length === 0 ? <EmptyState text="ไม่พบข้อมูล membership" /> : (
-              <div className="space-y-3">
-                {memberships.map((m: any, i: number) => (
-                  <div key={m.id || i} className="rounded-xl border border-[#060d26]/10 bg-white p-4">
-                    <p className="text-sm font-semibold text-[#060d26]">{m.municipality?.name || 'ไม่ระบุหน่วยงาน'}</p>
-                    <p className="text-xs text-[#707993] mt-1">Role: {m.role || '-'} | สถานะ: {m.isActive ? 'ใช้งาน' : 'ไม่ใช้งาน'}</p>
-                  </div>
-                ))}
+    <div>
+      <PageHeader
+        eyebrow="gov-sso-login"
+        title="SSO Login Showcase"
+        description="Test the SSO login flow and inspect the user structure, permissions, and raw payload from IAM-GOV API."
+      />
+      <main className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 animate-fade-in-up">
+        {isLoggedIn && ssoPayload ? (
+          <div className="space-y-6">
+            <section className="card-section p-6">
+              <h2 className="text-lg font-bold text-[#060d26] mb-4">User Info</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DataField label="Name" value={ssoUser.name} />
+                <DataField label="Email" value={ssoUser.email} />
+                <DataField label="User ID" value={ssoUser.id} mono />
+                <DataField label="System Role" value={ssoUser.systemRole} />
               </div>
-            )}
-          </section>
+            </section>
 
-          <section className="card-section p-6">
-            <h2 className="text-lg font-bold text-[#060d26] mb-4">ที่อยู่ตามทะเบียน ({residences.length})</h2>
-            {residences.length === 0 ? <EmptyState text="ไม่พบข้อมูล residences" /> : (
-              <div className="space-y-3">
-                {residences.map((r: any, i: number) => (
-                  <div key={i} className="rounded-xl border border-[#060d26]/10 bg-white p-4">
-                    <ExpandableJson data={r} tone="light" />
-                  </div>
-                ))}
+            <section className="card-section p-6">
+              <h2 className="text-lg font-bold text-[#060d26] mb-4">Organization Permissions ({memberships.length})</h2>
+              {memberships.length === 0 ? <EmptyState text="No membership data found" /> : (
+                <div className="space-y-3">
+                  {memberships.map((m: any, i: number) => (
+                    <div key={m.id || i} className="rounded-xl border border-[#060d26]/10 bg-white p-4">
+                      <p className="text-sm font-semibold text-[#060d26]">{m.municipality?.name || 'Unknown organization'}</p>
+                      <p className="text-xs text-[#707993] mt-1">Role: {m.role || '-'} | Status: {m.isActive ? 'Active' : 'Inactive'}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="card-section p-6">
+              <h2 className="text-lg font-bold text-[#060d26] mb-4">Registered Addresses ({residences.length})</h2>
+              {residences.length === 0 ? <EmptyState text="No residence data found" /> : (
+                <div className="space-y-3">
+                  {residences.map((r: any, i: number) => (
+                    <div key={i} className="rounded-xl border border-[#060d26]/10 bg-white p-4">
+                      <ExpandableJson data={r} tone="light" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="card-section p-6">
+              <h2 className="text-lg font-bold text-[#060d26] mb-4">Raw SSO Payload</h2>
+              <div className="rounded-xl border border-[#060d26]/10 bg-[#0f172a] p-4">
+                <ExpandableJson data={ssoPayload} tone="dark" />
               </div>
-            )}
-          </section>
+            </section>
 
-          <section className="card-section p-6">
-            <h2 className="text-lg font-bold text-[#060d26] mb-4">Raw SSO Payload</h2>
-            <div className="rounded-xl border border-[#060d26]/10 bg-[#0f172a] p-4">
-              <ExpandableJson data={ssoPayload} tone="dark" />
-            </div>
+            <section className="card-section p-6">
+              <h2 className="text-lg font-bold text-[#060d26] mb-4">Session User (Mapped)</h2>
+              <ExpandableJson data={user} tone="light" />
+            </section>
+          </div>
+        ) : (
+          <section className="card-section p-8 text-center">
+            <h2 className="text-lg font-bold text-[#060d26]">Not logged in</h2>
+            <p className="text-sm text-[#707993] mt-2">Login first to view SSO data and the full payload.</p>
           </section>
+        )}
 
-          <section className="card-section p-6">
-            <h2 className="text-lg font-bold text-[#060d26] mb-4">Session User (Mapped)</h2>
-            <ExpandableJson data={user} tone="light" />
-          </section>
-        </div>
-      ) : (
-        <section className="card-section p-8 text-center">
-          <h2 className="text-lg font-bold text-[#060d26]">ยังไม่ได้เข้าสู่ระบบ</h2>
-          <p className="text-sm text-[#707993] mt-2">ล็อกอินก่อนเพื่อดูข้อมูลจาก SSO และ payload แบบเต็ม</p>
+        <section className="card-section p-6 md:p-8 mt-8">
+          <h2 className="text-lg font-bold text-[#060d26] mb-4">README: gov-sso-login</h2>
+          <ReadmeViewer doc="gov-sso-login" />
         </section>
-      )}
-
-      <section className="card-section p-6 md:p-8 mt-8">
-        <h2 className="text-lg font-bold text-[#060d26] mb-4">README: gov-sso-login</h2>
-        <ReadmeViewer doc="gov-sso-login" />
-      </section>
-    </main>
+      </main>
+    </div>
   );
 }
 
 function DataField({ label, value, mono }: { label: string; value: any; mono?: boolean }) {
-  const displayValue = value === null || value === undefined ? '(ไม่ระบุ)' : String(value);
+  const displayValue = value === null || value === undefined ? '(not specified)' : String(value);
   return (
     <div>
       <p className="text-[11px] uppercase tracking-wider text-[#707993]">{label}</p>
@@ -111,7 +111,7 @@ function ExpandableJson({ data, tone }: { data: unknown; tone: 'light' | 'dark' 
         {JSON.stringify(data, null, 2)}
       </div>
       <button type="button" onClick={() => setExpanded((prev) => !prev)} className="mt-3 rounded-full border border-[#0b1220]/15 px-3 py-1 text-[11px] font-semibold text-[#2a3b52]">
-        {expanded ? 'ย่อข้อมูล' : 'ดูข้อมูลเพิ่มเติม'}
+        {expanded ? 'Collapse' : 'Show more'}
       </button>
     </div>
   );

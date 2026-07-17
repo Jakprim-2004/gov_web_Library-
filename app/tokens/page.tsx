@@ -10,6 +10,7 @@ import {
   IconWrench, IconXCircle,
 } from '@/components/GovIcons';
 import { RADIUS_CLASSES, SHADOW_CLASSES, SPACING_CLASSES, TOKEN_GROUPS, TYPO_CLASSES } from '@/lib/token-catalog';
+import { PageHeader } from '@/components/PageHeader';
 
 const QUICK_LINKS = [
   { id: 'brand', label: 'Brand' }, { id: 'semantic', label: 'Semantic' }, { id: 'text', label: 'Text' },
@@ -35,24 +36,26 @@ const ICONS = [
 
 export default function TokensPage() {
   return (
-    <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-10">
-      <header className="card-section p-6 md:p-8 mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#060d26]">คลังทั้งหมดของไลบรารี</h1>
-        <p className="mt-2 text-sm text-[#707993]">แสดงโทเคนและยูทิลิตี้ทุกชุดที่มีใน `gov-token-css` พร้อมไอคอนจาก `gov-layout`</p>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="gov-token-css"
+        title="Token Library"
+        description="All colors, fonts, spacing, and utilities available in the gov-token-css package, plus icons from gov-layout."
+      />
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-4 pb-12">
+        <nav className="mb-8 flex flex-wrap gap-2">{QUICK_LINKS.map((link) => <a key={link.id} href={`#${link.id}`} className="pill-nav">{link.label}</a>)}</nav>
+        <div className="space-y-12">{TOKEN_GROUPS.map((group) => <ColorSwatchGrid key={group.id} group={group} />)}</div>
 
-      <nav className="mb-8 flex flex-wrap gap-2">{QUICK_LINKS.map((link) => <a key={link.id} href={`#${link.id}`} className="pill-nav">{link.label}</a>)}</nav>
-      <div className="space-y-12">{TOKEN_GROUPS.map((group) => <ColorSwatchGrid key={group.id} group={group} />)}</div>
+        <section id="typography" className="scroll-mt-24 card-section p-6 md:p-8 mt-10">
+          <h2 className="text-lg font-bold text-[#060d26] mb-4">Typography Classes</h2>
+          <div className="space-y-3">{TYPO_CLASSES.map((tt) => <div key={tt.className} className="rounded-xl border border-[#060d26]/8 bg-white px-4 py-3"><p className={`${tt.className} text-[#060d26]`}>{tt.label}</p><p className="text-xs text-[#707993] mt-1"><code>{tt.className}</code> - {tt.desc}</p></div>)}</div>
+        </section>
 
-      <section id="typography" className="scroll-mt-24 card-section p-6 md:p-8 mt-10">
-        <h2 className="text-lg font-bold text-[#060d26] mb-4">Typography Classes</h2>
-        <div className="space-y-3">{TYPO_CLASSES.map((tt) => <div key={tt.className} className="rounded-xl border border-[#060d26]/8 bg-white px-4 py-3"><p className={`${tt.className} text-[#060d26]`}>{tt.label}</p><p className="text-xs text-[#707993] mt-1"><code>{tt.className}</code> - {tt.desc}</p></div>)}</div>
-      </section>
-
-      <section id="spacing" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Spacing Scale</h2><div className="flex flex-wrap gap-5 items-end">{SPACING_CLASSES.map((s) => <div key={s.className} className="text-center"><div className={`${s.className} rounded-xl`} style={{ background: 'rgba(30, 125, 85, 0.08)' }}><div className="flex items-center justify-center rounded-lg text-white text-xs font-bold" style={{ background: 'var(--gradient-primary)', minWidth: '40px', minHeight: '40px' }}>{s.value}</div></div><code className="mt-2 block text-[11px] text-[#707993]">{s.className}</code></div>)}</div></section>
-      <section id="radius" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Border Radius</h2><div className="flex flex-wrap gap-6">{RADIUS_CLASSES.map((r) => <div key={r.className} className="text-center"><div className={`${r.className} h-20 w-28 flex items-center justify-center text-white text-sm font-bold`} style={{ background: 'var(--gradient-primary)' }}>{r.value}</div><code className="mt-2 block text-[11px] text-[#707993]">{r.className}</code></div>)}</div></section>
-      <section id="shadows" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Shadow Tokens</h2><div className="grid gap-5 sm:grid-cols-3">{SHADOW_CLASSES.map((s) => <div key={s.className} className={`${s.className} rounded-2xl bg-white p-5 border border-[#060d26]/8`}><p className="text-sm font-semibold text-[#060d26]">{s.className}</p><p className="text-xs text-[#707993] mt-1">{s.desc}</p></div>)}</div></section>
-      <section id="icons" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Icon Set</h2><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{ICONS.map(({ name, label, Icon }) => <div key={name} className="rounded-2xl border border-[#0b1220]/8 bg-white p-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f6f5c]/10 text-[#1f6f5c]"><Icon size={26} /></div><div><p className="text-sm font-bold text-[#0b1220]">{label}</p><code className="text-[11px] text-[#5b6b80]">{name}</code></div></div></div>)}</div></section>
-    </main>
+        <section id="spacing" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Spacing Scale</h2><div className="flex flex-wrap gap-5 items-end">{SPACING_CLASSES.map((s) => <div key={s.className} className="text-center"><div className={`${s.className} rounded-xl`} style={{ background: 'rgba(30, 125, 85, 0.08)' }}><div className="flex items-center justify-center rounded-lg text-white text-xs font-bold" style={{ background: 'var(--gradient-primary)', minWidth: '40px', minHeight: '40px' }}>{s.value}</div></div><code className="mt-2 block text-[11px] text-[#707993]">{s.className}</code></div>)}</div></section>
+        <section id="radius" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Border Radius</h2><div className="flex flex-wrap gap-6">{RADIUS_CLASSES.map((r) => <div key={r.className} className="text-center"><div className={`${r.className} h-20 w-28 flex items-center justify-center text-white text-sm font-bold`} style={{ background: 'var(--gradient-primary)' }}>{r.value}</div><code className="mt-2 block text-[11px] text-[#707993]">{r.className}</code></div>)}</div></section>
+        <section id="shadows" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Shadow Tokens</h2><div className="grid gap-5 sm:grid-cols-3">{SHADOW_CLASSES.map((s) => <div key={s.className} className={`${s.className} rounded-2xl bg-white p-5 border border-[#060d26]/8`}><p className="text-sm font-semibold text-[#060d26]">{s.className}</p><p className="text-xs text-[#707993] mt-1">{s.desc}</p></div>)}</div></section>
+        <section id="icons" className="scroll-mt-24 card-section p-6 md:p-8 mt-10"><h2 className="text-lg font-bold text-[#060d26] mb-4">Icon Set</h2><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{ICONS.map(({ name, label, Icon }) => <div key={name} className="rounded-2xl border border-[#0b1220]/8 bg-white p-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1f6f5c]/10 text-[#1f6f5c]"><Icon size={26} /></div><div><p className="text-sm font-bold text-[#0b1220]">{label}</p><code className="text-[11px] text-[#5b6b80]">{name}</code></div></div></div>)}</div></section>
+      </main>
+    </div>
   );
 }
